@@ -1,9 +1,9 @@
-YAML Snippets for Sublime Text 2
-================================
+SaneSnippets for Sublime Text 2
+===============================
 
     ---
-    description: Sample YAML snippet
-    tabTrigger:  yaml
+    description: Sample SaneSnippet
+    tabTrigger:  sane
     scope:       text.plain
     ---
     sup_dawg:
@@ -19,10 +19,10 @@ YAML Snippets for Sublime Text 2
 Installation
 ------------
 
-Copy or clone YAML Snippets into your Sublime Text Packages directory:
+Copy or clone SaneSnippets into your Sublime Text Packages directory:
 
     # cd to packages dir ...
-    git clone git://github.com/bobthecow/sublime-yaml-snippets.git "YAML Snippets"
+    git clone git://github.com/bobthecow/sublime-sane-snippets.git SaneSnippets
 
 ----
 
