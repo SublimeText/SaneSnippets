@@ -1,6 +1,9 @@
 SaneSnippets for Sublime Text 2
 ===============================
 
+SaneSnippets consist of text file with little bit of YAML front matter. They're
+optimized for human readability, not plist parsers:
+
     ---
     description: Sample SaneSnippet
     tabTrigger:  sane
@@ -14,6 +17,12 @@ SaneSnippets for Sublime Text 2
         so_you:
             can: parse
             while_you: parse
+
+
+... because nobody likes hand-coding XML.
+
+To use, add `.sane-snippet` files to any SublimeText package. I personally keep
+them in `User/Snippets`.
 
 
 Installation
@@ -39,6 +48,13 @@ The Packages directory is located at:
  * Linux:
 
         ~/.Sublime Text 2/Packages/
+
+
+Usage
+-----
+
+
+Create `.sane-snippet` files anywhere in your Sublime Text Packages directory
 
 
 License
