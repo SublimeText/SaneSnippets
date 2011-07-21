@@ -5,18 +5,19 @@ SaneSnippets consist of text file with little bit of YAML front matter. They're
 optimized for human readability, not plist parsers:
 
     ---
-    description: Sample SaneSnippet
-    tabTrigger:  sane
+    description: Lorizzle
+    tabTrigger:  lorizzle
     scope:       text.plain
     ---
-    sup_dawg:
-        i_herd_you_like: yaml
-        so_i:
-            put: yaml
-            in_your: yaml
-        so_you:
-            can: parse
-            while_you: parse
+    Lorizzle sure dolizzle sit amizzle, pot adipiscing shizznit. Nullizzle check
+    out this velit, fo shizzle volutpizzle, suscipit quizzle, doggy vizzle,
+    yippiyo. Pellentesque tellivizzle tortizzle. Sizzle erizzle. Mah nizzle
+    izzle shizzle my nizzle crocodizzle sizzle dang tempizzle bizzle. Maurizzle
+    pellentesque nibh et turpizzle. Shiz izzle gizzle. Pellentesque nizzle
+    rhoncus i saw beyonces tizzles and my pizzle went crizzle. In daahng dawg
+    habitasse cool boom shackalack. Brizzle dapibizzle. Curabitur nizzle
+    pimpin', pretizzle da bomb, mattizzle ac, eleifend vitae, nunc. Mofo
+    suscipizzle. We gonna chung sempizzle go to hizzle phat gizzle.
 
 
 ... because nobody likes hand-coding XML.
