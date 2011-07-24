@@ -1,0 +1,11 @@
+---
+description: SaneSnippet
+tabTrigger:  ssnip
+scope:       text.plain
+---
+---
+description: ${1:Lorizzle}
+tabTrigger:  ${2:lorizzle}
+scope:       ${3:text.plain}
+---
+$0
