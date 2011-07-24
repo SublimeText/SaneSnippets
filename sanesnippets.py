@@ -88,7 +88,7 @@ def regenerate_snippets():
 
 	# Dump new snippets
 	for snippet in snippets:
-		(f, path) = mkstemp(prefix=".%s." % snippet['description'], suffix='.sane.sublime-snippet', dir=os.path.dirname(path))
+		(f, path) = mkstemp(prefix=".%s." % snippet['description'], suffix='.sane.sublime-snippet', dir=os.path.dirname(snippet['path']))
 		print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
 		TreeDumper(snippet_to_xml(snippet)).write(path)
 
