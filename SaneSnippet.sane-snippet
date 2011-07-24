@@ -1,7 +1,7 @@
 ---
 description: SaneSnippet
 tabTrigger:  ssnip
-scope:       text.plain
+scope:       source.sanesnippet
 ---
 ---
 description: ${1:Lorizzle}
