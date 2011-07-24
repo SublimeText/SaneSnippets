@@ -1,4 +1,4 @@
-import sublime
+import sublime, sublime_plugin
 import os, re
 from xml.etree import ElementTree as etree
 from tempfile import mkstemp
@@ -94,3 +94,9 @@ def regenerate_snippets():
 
 # Go go gadget snippets!
 regenerate_snippets()
+
+# And watch for updated snippets
+class SaneSnippet(sublime_plugin.EventListener):
+	def on_post_save(self, view):
+		if (view.file_name().endswith('.sane-snippet')):
+			regenerate_snippets()
