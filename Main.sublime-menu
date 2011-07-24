@@ -1,0 +1,13 @@
+[
+    {
+        "id": "tools",
+        "children":
+        [
+            {
+                "id":      "sane_snippets",
+                "caption": "New SaneSnippet…",
+                "command": "new_sane_snippet"
+            }
+        ]
+    }
+]
