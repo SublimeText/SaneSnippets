@@ -7,7 +7,7 @@ description: ${1:Lorizzle}
 tabTrigger:  ${2:lorizzle}
 scope:       ${3:text.plain}
 ---
-$0"""
+%s"""
 
 syntax_file = os.path.join(os.getcwd(), 'SaneSnippet.tmLanguage')
 
@@ -17,12 +17,13 @@ def view_has_selection(view):
 
 
 class NewSaneSnippetCommand(sublime_plugin.TextCommand):
+    """Creates a new buffer and inserts a scratch snippet for .sane-snippet files"""
 
     def new_sane_snippet(self, window, content=None):
         v = window.new_file()
         v.settings().set('default_dir', os.path.join(sublime.packages_path(), 'User'))
         v.set_syntax_file(syntax_file)
-        v.run_command('insert_snippet', { 'contents': snippet_template.replace('$0', content or '$0') })
+        v.run_command('insert_snippet', { 'contents': snippet_template % (content or '$0') })
         v.set_scratch(True)
 
     def run(self, edit):
@@ -36,5 +37,7 @@ class NewSaneSnippetCommand(sublime_plugin.TextCommand):
 
 
 class NewSaneSnippetContextCommand(NewSaneSnippetCommand):
+    """The NewSaneSnippetCommand for menus (here: context menu), with is_enabled()"""
+
     def is_enabled(self):
         return self.has_selection()

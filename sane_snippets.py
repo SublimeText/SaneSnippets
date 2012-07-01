@@ -9,13 +9,6 @@ template      = re.compile('^---$.^(.*?)^---$.^(.*)$', re.S | re.M)
 line_template = re.compile('^(.*?):\s*(.*)$')
 
 
-# http://stackoverflow.com/questions/174890
-def CDATA(text=None):
-    element = etree.Element('![CDATA[')
-    element.text = text
-    return element
-
-
 class ElementTreeCDATA(etree.ElementTree):
     """Subclass of ElementTree which handles CDATA blocks reasonably"""
 
@@ -33,6 +26,8 @@ class ElementTreeCDATA(etree.ElementTree):
 
 
 def xml_append_node(s, tag, text, **kwargs):
+    """This one is tough ..."""
+
     c = etree.Element(tag, **kwargs)
     c.text = text
     s.append(c)
@@ -40,6 +35,8 @@ def xml_append_node(s, tag, text, **kwargs):
 
 
 def snippet_to_xml(snippet):
+    """This one is tougher (btw I'm talking about etree.Elements here) ..."""
+
     s = etree.Element('snippet')
     for key in ['description', 'tabTrigger', 'scope']:
         xml_append_node(s, key, snippet[key])
@@ -49,6 +46,8 @@ def snippet_to_xml(snippet):
 
 
 def parse_snippet(path, name, text):
+    """Parse a .sane-snippet and return an dict with the snippet's data"""
+
     snippet = {
         'path':        path,
         'name':        name,
@@ -82,6 +81,8 @@ def parse_snippet(path, name, text):
 
 
 def regenerate_snippet(path, onload=False):
+    "Call parse_snippet() and be proud of it (and catch some exceptions)"
+
     (name, ext) = os.path.splitext(os.path.basename(path))
 
     try:
@@ -113,11 +114,11 @@ def regenerate_snippet(path, onload=False):
 
 
 def regenerate_snippets(root=sublime.packages_path(), onload=False):
-    # Check Packages folder
-    for root, dirs, files in os.walk(root):
+    "Check the `root` dir for .sane-snippets and regenerate them while deleting .sane.sublime-snippets"
 
-        # Unlink old snippets
+    for root, dirs, files in os.walk(root):
         for basename in files:
+            # Remove old snippets
             # TODO: Only regenerate if "previous" file's contents are equal
             if basename.endswith('.sane.sublime-snippet'):
                 path = os.path.join(root, basename)
@@ -138,6 +139,12 @@ regenerate_snippets(onload=True)
 
 # And watch for updated snippets
 class SaneSnippet(sublime_plugin.EventListener):
+    """Rechecks the view's directory for .sane-snippets and regenerates them,
+    if the saved file is a .sane-snippet
+
+    Implements:
+        on_post_save"""
+
     def on_post_save(self, view):
         fn = view.file_name()
         if (fn.endswith('.sane-snippet')):
