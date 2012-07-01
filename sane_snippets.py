@@ -2,37 +2,49 @@ import sublime
 import sublime_plugin
 import os
 import re
-from xml.etree import ElementTree as etree
+import xml.etree.ElementTree as etree
 from tempfile import mkstemp
 
 template      = re.compile('^---$.^(.*?)^---$.^(.*)$', re.S | re.M)
 line_template = re.compile('^(.*?):\s*(.*)$')
 
 
+# http://stackoverflow.com/questions/174890
 def CDATA(text=None):
-    element = etree.Element(CDATA)
+    element = etree.Element('![CDATA[')
     element.text = text
     return element
 
 
-class TreeDumper(etree.ElementTree):
+class ElementTreeCDATA(etree.ElementTree):
+    """Subclass of ElementTree which handles CDATA blocks reasonably"""
+
     def _write(self, file, node, encoding, namespaces):
-        if node.tag is CDATA:
+        """This method is for ElementTree <= 1.2.6"""
+
+        if node.tag == '![CDATA[':
             text = node.text.encode(encoding)
-            file.write("<![CDATA[%s]]>" % text)
+            # escape ']]>' sequences by wrapping them into two CDATA sections
+            # http://stackoverflow.com/questions/223652
+            text = text.replace(']]>', ']]]]><![CDATA[')
+            file.write("\n<![CDATA[%s]]>\n" % text)
         else:
             etree.ElementTree._write(self, file, node, encoding, namespaces)
+
+
+def xml_append_node(s, tag, text, **kwargs):
+    c = etree.Element(tag, **kwargs)
+    c.text = text
+    s.append(c)
+    return s
 
 
 def snippet_to_xml(snippet):
     s = etree.Element('snippet')
     for key in ['description', 'tabTrigger', 'scope']:
-        c = etree.Element(key)
-        c.text = snippet[key]
-        s.append(c)
-    c = etree.Element('content')
-    c.append(CDATA(snippet['content']))
-    s.append(c)
+        xml_append_node(s, key, snippet[key])
+
+    s.append(xml_append_node(etree.Element('content'), '![CDATA[', snippet['content']))
     return s
 
 
@@ -97,7 +109,7 @@ def regenerate_snippet(path, onload=False):
 
     # print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
     # TODO: Prettify the XML structure before writing
-    TreeDumper(snippet_to_xml(snippet)).write(path)
+    ElementTreeCDATA(snippet_to_xml(snippet)).write(path)
 
 
 def regenerate_snippets(root=sublime.packages_path(), onload=False):
