@@ -9,7 +9,9 @@ scope:       ${3:text.plain}
 ---
 %s"""
 
-syntax_file = os.path.join(os.getcwd(), 'SaneSnippet.tmLanguage')
+# Should be "SaneSnippets", but do not rely on it
+package_name = os.path.relpath(os.getcwd(), sublime.packages_path())
+syntax_file = 'Packages/%s/SaneSnippet.tmLanguage' % package_name
 
 
 def view_has_selection(view):
