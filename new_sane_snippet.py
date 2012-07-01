@@ -12,9 +12,11 @@ $0"""
 syntax_file = os.path.join(os.getcwd(), 'SaneSnippet.tmLanguage')
 
 
+def view_has_selection(view):
+    return any(len(region) for region in view.sel())
+
+
 class NewSaneSnippetCommand(sublime_plugin.TextCommand):
-    def has_selection(self):
-        return any(len(region) for region in self.view.sel())
 
     def new_sane_snippet(self, window, content=None):
         v = window.new_file()
@@ -25,9 +27,9 @@ class NewSaneSnippetCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         w = self.view.window()
-        if self.has_selection():
+        if view_has_selection(self.view):
             for region in self.view.sel():
-                if (len(region)):
+                if len(region):
                     self.new_sane_snippet(w, self.view.substr(region))
         else:
             self.new_sane_snippet(w)
