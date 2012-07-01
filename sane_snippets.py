@@ -5,7 +5,7 @@ import re
 from xml.etree import ElementTree as etree
 from tempfile import mkstemp
 
-template      = re.compile('^---%(n)s(.*?)%(n)s---%(n)s(.*)$' % {'n': os.linesep}, re.S)
+template      = re.compile('^---$.^(.*?)^---$.^(.*)$', re.S | re.M)
 line_template = re.compile('^(.*?):\s*(.*)$')
 
 
@@ -49,61 +49,84 @@ def parse_snippet(path, name, text):
         # TODO: handle quoted strings.
         return text.strip()
 
-    try:
-        (frontmatter, content) = template.match(text).groups()
-        snippet['content'] = content
-        for line in frontmatter.split(os.linesep):
-            (key, val) = line_template.match(line).groups()
-            key = key.strip()
-            if key in ['description', 'tabTrigger', 'scope']:
-                snippet[key] = parse_val(val)
-            else:
-                sublime.error_message('Unexpected SaneSnippet property: "%s" in file "%s"' % (key, path))
-                return
-    except Exception:
-        sublime.error_message("Error parsing SaneSnippet in file \"%s\"" % path)
+    match = template.match(text)
+    if match is None:
+        raise SyntaxError("Unable to parse SaneSnippet")
+    (header, content) = match.groups()
+    snippet['content'] = content
+
+    for line in header.splitlines():
+        match = line_template.match(line)
+        if match is None:
+            raise SyntaxError("Unable to parse SaneSnippet header")
+        (key, val) = match.groups()
+        key = key.strip()
+        if key in ('description', 'tabTrigger', 'scope'):
+            snippet[key] = parse_val(val)
+        else:
+            raise SyntaxError('Unexpected SaneSnippet property: "%s"' % key)
 
     return snippet
 
 
-def regenerate_snippets():
-    snippets = []
+def regenerate_snippet(path, onload=False):
+    (name, ext) = os.path.splitext(os.path.basename(path))
 
+    try:
+        f = open(path, 'rb')
+        snippet = parse_snippet(path, name, f.read())
+
+    except Exception as e:
+        msg  = isinstance(e, SyntaxError) and str(e) or "Error parsing SaneSnippet"
+        msg += ' in file "%s"' % path
+        if onload:
+            # Sublime Text likes "hanging" itself when an error_message is pushed at initialization
+            print msg
+        else:
+            sublime.error_message(msg)
+
+        print e
+        return
+
+    finally:
+        f.close()
+
+    (f, path) = mkstemp(prefix=".%s." % snippet['description'],
+                        suffix='.sane.sublime-snippet',
+                        dir=os.path.dirname(snippet['path']))
+
+    # print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
+    # TODO: Prettify the XML structure before writing
+    TreeDumper(snippet_to_xml(snippet)).write(path)
+
+
+def regenerate_snippets(root=sublime.packages_path(), onload=False):
     # Check Packages folder
-    for root, dirs, files in os.walk(sublime.packages_path()):
+    for root, dirs, files in os.walk(root):
 
         # Unlink old snippets
-        for name in files:
-            try:
-                if name.endswith('.sane.sublime-snippet'):
-                    os.unlink(os.path.join(root, name))
-            except:
-                pass
+        for basename in files:
+            # TODO: Only regenerate if "previous" file's contents are equal
+            if basename.endswith('.sane.sublime-snippet'):
+                path = os.path.join(root, basename)
+                try:
+                    # TODO: Does not work on windows since Sublime Text ist "using" the file
+                    os.remove(path)
+                except:
+                    # print "SaneSnippet: Unable to delete `%s`, file is probably in use (by Sublime Text)" % path
+                    pass
 
-        # Create new snippets
-        for name in files:
-            try:
-                if name.endswith('.sane-snippet'):
-                    path = os.path.join(root, name)
-                    f = open(path, 'rb')
-                    snippets.append(parse_snippet(path, os.path.splitext(name)[0], f.read()))
-                    f.close()
+            # Create new snippets
+            if basename.endswith('.sane-snippet'):
+                regenerate_snippet(os.path.join(root, basename), onload=onload)
 
-            except:
-                pass
-
-    # Dump new snippets
-    for snippet in snippets:
-        (f, path) = mkstemp(prefix=".%s." % snippet['description'], suffix='.sane.sublime-snippet', dir=os.path.dirname(snippet['path']))
-        # print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
-        TreeDumper(snippet_to_xml(snippet)).write(path)
-
-# Go go gadget snippets!
-regenerate_snippets()
+# Go go gadget snippets! (run async?)
+regenerate_snippets(onload=True)
 
 
 # And watch for updated snippets
 class SaneSnippet(sublime_plugin.EventListener):
     def on_post_save(self, view):
-        if (view.file_name().endswith('.sane-snippet')):
-            regenerate_snippets()
+        fn = view.file_name()
+        if (fn.endswith('.sane-snippet')):
+            regenerate_snippets(os.path.dirname(fn))
