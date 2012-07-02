@@ -84,9 +84,8 @@ def regenerate_snippet(path, onload=False):
     "Call parse_snippet() and be proud of it (and catch some exceptions)"
 
     (name, ext) = os.path.splitext(os.path.basename(path))
-
     try:
-        f = open(path, 'rb')
+        f = open(path, 'r')
         snippet = parse_snippet(path, name, f.read())
 
     except Exception as e:
@@ -104,13 +103,19 @@ def regenerate_snippet(path, onload=False):
     finally:
         f.close()
 
-    (f, path) = mkstemp(prefix=".%s." % snippet['description'],
-                        suffix='.sane.sublime-snippet',
-                        dir=os.path.dirname(snippet['path']))
+    try:
+        (fd, path) = mkstemp(prefix=".%s." % snippet['description'],
+                            suffix='.sane.sublime-snippet',
+                            dir=os.path.dirname(snippet['path']),
+                            text=True)
+        f = os.fdopen(fd, 'w')
 
-    # print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
-    # TODO: Prettify the XML structure before writing
-    ElementTreeCDATA(snippet_to_xml(snippet)).write(path)
+        # print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
+        # TODO: Prettify the XML structure before writing
+        ElementTreeCDATA(snippet_to_xml(snippet)).write(f)
+
+    finally:
+        f.close()
 
 
 def regenerate_snippets(root=sublime.packages_path(), onload=False):
