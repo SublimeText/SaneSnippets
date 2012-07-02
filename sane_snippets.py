@@ -93,11 +93,12 @@ def regenerate_snippet(path, onload=False):
         msg += ' in file "%s"' % path
         if onload:
             # Sublime Text likes "hanging" itself when an error_message is pushed at initialization
-            print msg
+            print "Error: " + msg
         else:
             sublime.error_message(msg)
+        if not isinstance(e, SyntaxError):
+            print e  # print the error only if it's not raised intentionally
 
-        print e
         return
 
     finally:
