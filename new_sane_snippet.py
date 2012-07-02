@@ -42,4 +42,4 @@ class NewSaneSnippetContextCommand(NewSaneSnippetCommand):
     """The NewSaneSnippetCommand for menus (here: context menu), with is_enabled()"""
 
     def is_enabled(self):
-        return self.has_selection()
+        return view_has_selection(self.view)
