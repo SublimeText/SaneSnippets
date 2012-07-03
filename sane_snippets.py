@@ -6,7 +6,7 @@ import xml.etree.ElementTree as etree
 from tempfile import mkstemp
 
 template      = re.compile(r'''
-                                ---%(nl)s               # initial separator, newline
+                                (?:---%(nl)s)?          # initial separator, newline {optional}
                                 (?P<header>.*?)%(nnl)s  # the header, named group for newline
                                 ---%(nl)s               # another separator, newline
                                 (?P<content>.*)         # the content - matches till the end of the string
