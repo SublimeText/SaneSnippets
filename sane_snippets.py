@@ -6,11 +6,12 @@ import xml.etree.ElementTree as etree
 from tempfile import mkstemp
 
 template      = re.compile(r'''
----(?P<linesep>\r\n?|\n)    # initial separator
-(?P<header>.*?)\1           # the header, and backreference to the newline
----\1                       # another separator and a newline
-(?P<content>.*)             # the content - matches till the end of the string
-''', re.S | re.X)
+                                ---%(nl)s               # initial separator, newline
+                                (?P<header>.*?)%(nnl)s  # the header, named group for newline
+                                ---%(nl)s               # another separator, newline
+                                (?P<content>.*)         # the content - matches till the end of the string
+                           ''' % dict(nl=r'(?:\r\n?|\n)', nnl=r'(?P<linesep>\r\n?|\n)'),
+                           re.S | re.X)
 line_template = re.compile(r'^(?P<key>.*?):\s*(?P<val>.*)$')
 
 
@@ -77,10 +78,8 @@ def parse_snippet(path, name, text):
     if match is None:
         raise SyntaxError("Unable to parse SaneSnippet")
     m = match.groupdict()
-    print m
     snippet['content'] = m['content']
     snippet['linesep'] = m['linesep']
-    print repr(text)
 
     for line in m['header'].splitlines():
         match = line_template.match(line)
@@ -145,10 +144,9 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False):
             if basename.endswith('.sane.sublime-snippet'):
                 path = os.path.join(root, basename)
                 try:
-                    # TODO: Does not work on windows since Sublime Text ist "using" the file
                     os.remove(path)
                 except:
-                    # print "SaneSnippet: Unable to delete `%s`, file is probably in use (by Sublime Text)" % path
+                    print "SaneSnippet: Unable to delete `%s`, file is probably in use" % path
                     pass
 
             # Create new snippets
