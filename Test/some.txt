@@ -1,4 +1,0 @@
-This text has \r\n linebreaks
-
-
-yeah

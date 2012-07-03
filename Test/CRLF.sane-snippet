@@ -1,9 +1,0 @@
----
-description: CRLF
-tabTrigger:  test-crlf
-scope:       text.plain
---
-This text has \r\n linebreaks
-
-
-yeah
