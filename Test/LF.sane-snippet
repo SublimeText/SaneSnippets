@@ -1,0 +1,8 @@
+---
+description: LF
+tabTrigger:  test-lf
+scope:       text.plain
+---
+This text has LF linebreaks
+
+...
