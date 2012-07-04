@@ -3,7 +3,10 @@ import sublime_plugin
 import os
 import re
 import xml.etree.ElementTree as etree
-from tempfile import mkstemp
+import StringIO
+
+EXT_SANESNIPPET  = ".sane-snippet"
+EXT_SNIPPET_SANE = ".sane.sublime-snippet"
 
 template      = re.compile(r'''
                                 ---%(nl)s               # initial separator, newline {optional}
@@ -59,7 +62,8 @@ def snippet_to_xml(snippet):
 
 def parse_snippet(path, name, text):
     """Parse a .sane-snippet and return an dict with the snippet's data
-    May raise SyntaxError (intended) or other unintended exceptions."""
+    May raise SyntaxError (intended) or other unintended exceptions.
+    @return dict() with snippet's data"""
 
     snippet = {
         'path':        path,
@@ -96,16 +100,24 @@ def parse_snippet(path, name, text):
 
 
 def regenerate_snippet(path, onload=False):
-    "Call parse_snippet() and be proud of it (and catch some exceptions)"
+    """Call parse_snippet() and be proud of it (and catch some exceptions)
+    @return generated XML string or None"""
 
     (name, ext) = os.path.splitext(os.path.basename(path))
     try:
         f = open(path, 'r')
-        snippet = parse_snippet(path, name, f.read())
+    except:
+        print "SaneSnippet: Unable to read `%s`" % path
+        return None
+    else:
+        read = f.read()
+        f.close()
 
+    try:
+        snippet = parse_snippet(path, name, read)
     except Exception as e:
         msg  = isinstance(e, SyntaxError) and str(e) or "Error parsing SaneSnippet"
-        msg += ' in file "%s"' % path
+        msg += " in file `%s`" % path
         if onload:
             # Sublime Text likes "hanging" itself when an error_message is pushed at initialization
             print "Error: " + msg
@@ -114,44 +126,91 @@ def regenerate_snippet(path, onload=False):
         if not isinstance(e, SyntaxError):
             print e  # print the error only if it's not raised intentionally
 
-        return
+        return None
 
-    finally:
-        f.close()
-
+    sio = StringIO.StringIO()
     try:
-        (fd, path) = mkstemp(prefix=".%s." % snippet['description'],
-                            suffix='.sane.sublime-snippet',
-                            dir=os.path.dirname(snippet['path']),
-                            text=True)
-        f = os.fdopen(fd, 'w')
-
-        # print 'Writing SaneSnippet "%s" to "%s"' % (snippet['description'], path)
         # TODO: Prettify the XML structure before writing
-        ElementTreeCDATA(snippet_to_xml(snippet), linesep=snippet['linesep']).write(f)
-
+        ElementTreeCDATA(snippet_to_xml(snippet), linesep=snippet['linesep']).write(sio)
+    except:
+        print "SaneSnippet: Could not write XML data into stream for file `%s`" % path
+        return None
+    else:
+        return sio.getvalue()
     finally:
-        f.close()
+        sio.close()
 
 
 def regenerate_snippets(root=sublime.packages_path(), onload=False):
-    "Check the `root` dir for .sane-snippets and regenerate them while deleting .sane.sublime-snippets"
+    """Check the `root` dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
+    Also delete parsed snippets that have no raw equivalent"""
 
     for root, dirs, files in os.walk(root):
         for basename in files:
-            # Remove old snippets
-            # TODO: Only regenerate if "previous" file's contents are not equal
-            if basename.endswith('.sane.sublime-snippet'):
-                path = os.path.join(root, basename)
-                try:
-                    os.remove(path)
-                except:
-                    print "SaneSnippet: Unable to delete `%s`, file is probably in use" % path
-                    pass
+            path = os.path.join(root, basename)
+            (name, ext) = os.path.splitext(basename)
+
+            # Remove parsed snippets that have no raw equivalent
+            if basename.endswith(EXT_SNIPPET_SANE):
+                sane_path = swap_extension(path)
+                if not os.path.exists(sane_path):
+                    remove_snippet(path)
+                continue
 
             # Create new snippets
-            if basename.endswith('.sane-snippet'):
-                regenerate_snippet(os.path.join(root, basename), onload=onload)
+            if basename.endswith(EXT_SANESNIPPET):
+                (sane_path, path) = (path, swap_extension(path))
+                # Generate XML
+                generated = regenerate_snippet(sane_path, onload=onload)
+                if generated is None:
+                    continue
+
+                # Check if snippet should be written
+                write = False
+                if not os.path.exists(path):
+                    write = True
+                else:
+                    try:
+                        f = open(path, 'r')
+                    except:
+                        print "SaneSnippet: Unable to read `%s`" % path
+                        continue
+                    else:
+                        read = f.read()
+                        f.close()
+
+                    if read != generated:
+                        write = True
+
+                # Write the file
+                if write:
+                    try:
+                        f = open(path, 'w')
+                    except:
+                        print "SaneSnippet: Unable to open `%s`" % path
+                        continue
+                    else:
+                        read = f.write(generated)
+                        f.close()
+
+
+def remove_snippet(path):
+    "Removes `path` and prints error if failed"
+
+    try:
+        os.remove(path)
+    except:
+        print "SaneSnippet: Unable to delete `%s`, file is probably in use" % path
+        pass
+
+
+def swap_extension(path):
+    "Swaps `path`'s extension between `EXT_SNIPPET_SANE` and `EXT_SANESNIPPET`"
+
+    if path.endswith(EXT_SNIPPET_SANE):
+        return path.replace(EXT_SNIPPET_SANE, EXT_SANESNIPPET)
+    else:
+        return path.replace(EXT_SANESNIPPET, EXT_SNIPPET_SANE)
 
 # Go go gadget snippets! (run async?)
 regenerate_snippets(onload=True)
