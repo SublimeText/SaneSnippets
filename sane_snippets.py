@@ -141,7 +141,7 @@ def regenerate_snippet(path, onload=False):
         sio.close()
 
 
-def regenerate_snippets(root=sublime.packages_path(), onload=False):
+def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False):
     """Check the `root` dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
     Also delete parsed snippets that have no raw equivalent"""
 
@@ -154,7 +154,11 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False):
             if basename.endswith(EXT_SNIPPET_SANE):
                 sane_path = swap_extension(path)
                 if not os.path.exists(sane_path):
-                    remove_snippet(path)
+                    try:
+                        os.remove(path)
+                    except:
+                        print "SaneSnippet: Unable to delete `%s`, file is probably in use" % path
+
                 continue
 
             # Create new snippets
@@ -163,11 +167,11 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False):
                 # Generate XML
                 generated = regenerate_snippet(sane_path, onload=onload)
                 if generated is None:
-                    continue
+                    continue  # errors already printed
 
                 # Check if snippet should be written
                 write = False
-                if not os.path.exists(path):
+                if force or not os.path.exists(path):
                     write = True
                 else:
                     try:
@@ -194,16 +198,6 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False):
                         f.close()
 
 
-def remove_snippet(path):
-    "Removes `path` and prints error if failed"
-
-    try:
-        os.remove(path)
-    except:
-        print "SaneSnippet: Unable to delete `%s`, file is probably in use" % path
-        pass
-
-
 def swap_extension(path):
     "Swaps `path`'s extension between `EXT_SNIPPET_SANE` and `EXT_SANESNIPPET`"
 
@@ -216,7 +210,7 @@ def swap_extension(path):
 regenerate_snippets(onload=True)
 
 
-# And watch for updated snippets
+# Watch for updated snippets
 class SaneSnippet(sublime_plugin.EventListener):
     """Rechecks the view's directory for .sane-snippets and regenerates them,
     if the saved file is a .sane-snippet
@@ -228,3 +222,11 @@ class SaneSnippet(sublime_plugin.EventListener):
         fn = view.file_name()
         if (fn.endswith('.sane-snippet')):
             regenerate_snippets(os.path.dirname(fn))
+
+
+# A command interface
+class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
+    """Rechecks the packages directory for .sane-snippets and regenerates them
+    If `force = True` it will regenerate all the snippets even if they weren't updated"""
+    def run(self, force=False):
+        regenerate_snippets(force=force)
