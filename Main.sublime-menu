@@ -4,9 +4,33 @@
         "children":
         [
             {
-                "id":      "sane_snippets",
-                "caption": "New SaneSnippet…",
-                "command": "new_sane_snippet"
+                "id": "packages",
+                "caption": "Packages",
+                "children":
+                [
+                    {
+                        "id":      "sane_snippets",
+                        "caption": "SaneSnippets",
+                        "children":
+                        [
+                            {
+                                "id":      "new_sane_snippet",
+                                "caption": "New SaneSnippet...",
+                                "command": "new_sane_snippet"
+                            },
+                            {
+                                "id":      "regenerate_sane_snippets",
+                                "caption": "Regenerate SaneSnippets",
+                                "command": "new_sane_snippet"
+                            },
+                            {
+                                "id":      "regenerate_sane_snippets_force",
+                                "caption": "Regenerate SaneSnippets (force)",
+                                "command": "new_sane_snippet"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }
