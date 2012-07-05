@@ -2,7 +2,7 @@ SaneSnippets for Sublime Text 2
 ===============================
 
 SaneSnippets consist of text files with little bit of YAML front matter. They're
-optimized for human readability, not plist parsers:
+optimized for human readability, not XML parsers:
 
     ---
     description: Lorizzle
@@ -54,10 +54,10 @@ file using Sublime Text its containing directory will be rescaned for changed
 SaneSnippets. This allows you to rename your snippets while still detecting and
 deleting the old unused snippet (with no corresponding `.sane-snippet` file).
 
-You can manually rescan the whole packages directory with the
-`SaneSnippets: Regenerate SaneSnippets` command from the command palette
-(`Ctrl+Shift+p`, `Cmd+Shift+p`) or force regeneration even if the files have not
-changed with the `SaneSnippets: Regenerate SaneSnippets (force)` command.
+You can manually regenerate all SaneSnippets in the whole packages directory
+with the `SaneSnippets: Regenerate SaneSnippets` command from the command
+palette (`Ctrl+Shift+p`, `Cmd+Shift+p`) or the menu (*Tools > Packages >
+SaneSnippets > Regenerate SaneSnippets*).
 
 
 License

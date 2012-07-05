@@ -22,12 +22,6 @@
                                 "id":      "regenerate_sane_snippets",
                                 "caption": "Regenerate SaneSnippets",
                                 "command": "regenerate_sane_snippets"
-                            },
-                            {
-                                "id":      "regenerate_sane_snippets_force",
-                                "caption": "Regenerate SaneSnippets (force)",
-                                "command": "regenerate_sane_snippets",
-                                "args": {"force": "true"}
                             }
                         ]
                     }

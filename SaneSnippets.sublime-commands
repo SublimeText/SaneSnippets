@@ -1,5 +1,4 @@
 [
     { "command": "new_sane_snippet",         "caption": "SaneSnippets: New SaneSnippet..." },
-    { "command": "regenerate_sane_snippets", "caption": "SaneSnippets: Regenerate SaneSnippets" },
-    { "command": "regenerate_sane_snippets", "caption": "SaneSnippets: Regenerate SaneSnippets (force)", "args": {"force": "true"} }
+    { "command": "regenerate_sane_snippets", "caption": "SaneSnippets: Regenerate SaneSnippets" }
 ]
