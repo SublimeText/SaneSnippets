@@ -15,7 +15,7 @@
                         [
                             {
                                 "id":      "new_sane_snippet",
-                                "caption": "New SaneSnippet...",
+                                "caption": "New SaneSnippet…",
                                 "command": "new_sane_snippet"
                             },
                             {
