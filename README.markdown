@@ -75,6 +75,12 @@ palette (`Ctrl+Shift+p`, `Cmd+Shift+p`) or the menu (*Tools > Packages >
 SaneSnippets > Regenerate SaneSnippets*).
 
 
+Contributors
+------------
+
+ * [FichteFoll](https://github.com/FichteFoll/)
+
+
 License
 -------
 
