@@ -29,10 +29,24 @@ them in `User/Snippets`.
 Installation
 ------------
 
-Copy or clone SaneSnippets into your Sublime Text Packages directory:
+### Using Sublime Package Control
+
+Pick this option. Install via [Sublime Package Control](http://wbond.net/sublime_packages/package_control),
+using the `Package Control: Install Package` menu item. Look for `SaneSnippets`
+in the package list.
+
+### Using Git
+
+Clone SaneSnippets into your `Packages` directory:
 
     # cd to packages dir ...
-    git clone git://github.com/bobthecow/sublime-sane-snippets.git SaneSnippets
+    git clone https://github.com/bobthecow/sublime-sane-snippets.git SaneSnippets
+
+### Download manually
+
+ 1. [Download the latest version](https://github.com/bobthecow/sublime-sane-snippets/zipball/master)
+ 2. Unzip and rename the folder to `SaneSnippets`
+ 3. Move the folder into your `Packages` directory.
 
 ----
 
@@ -43,6 +57,7 @@ The Packages directory is located at:
  * **Windows**: `%APPDATA%/Sublime Text 2/Packages/`
 
 Or type `sublime.packages_path()` into the console (`` Ctrl-` ``).
+
 
 Usage
 -----
