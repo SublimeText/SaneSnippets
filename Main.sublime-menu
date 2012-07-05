@@ -21,12 +21,13 @@
                             {
                                 "id":      "regenerate_sane_snippets",
                                 "caption": "Regenerate SaneSnippets",
-                                "command": "new_sane_snippet"
+                                "command": "regenerate_sane_snippets"
                             },
                             {
                                 "id":      "regenerate_sane_snippets_force",
                                 "caption": "Regenerate SaneSnippets (force)",
-                                "command": "new_sane_snippet"
+                                "command": "regenerate_sane_snippets",
+                                "args": {"force": "true"}
                             }
                         ]
                     }
