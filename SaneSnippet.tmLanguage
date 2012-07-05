@@ -12,17 +12,17 @@
 	<array>
 		<dict>
 			<key>begin</key>
-			<string>^(---)$</string>
+			<string>\G(---)$</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>punctuation.section.embedded.begin.sanesnippet.frontmatter</string>
+					<string>support.other.section.embedded.begin.sanesnippet.frontmatter</string>
 				</dict>
 			</dict>
 			<key>end</key>
-			<string>^___UGLY HACK TO PREVENT SANESNIPPET FRONTMATTER FROM ENDING EARLY___$</string>
+			<string>(?>=.)\z</string>
 			<key>name</key>
 			<string>source.sanesnippet.frontmatter</string>
 			<key>patterns</key>
@@ -47,7 +47,7 @@
 						</dict>
 					</dict>
 					<key>match</key>
-					<string>^(description|tabTrigger|scope)\s*(:)\s*(.*?)\s*$</string>
+					<string>^(description|tabTrigger|scope)(:)\s*(.*?)\s*$</string>
 				</dict>
 				<dict>
 					<key>begin</key>
@@ -57,11 +57,11 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>punctuation.section.embedded.end.sanesnippet.frontmatter</string>
+							<string>support.other.section.embedded.end.sanesnippet.frontmatter</string>
 						</dict>
 					</dict>
 					<key>end</key>
-					<string>^___UGLY HACK TO PREVENT SANESNIPPET CONTENT FROM ENDING EARLY___$</string>
+					<string>(?>=.)\z</string>
 					<key>name</key>
 					<string>source.sanesnippet.content</string>
 					<key>patterns</key>
@@ -296,7 +296,21 @@
 						</dict>
 					</array>
 				</dict>
+				<dict>
+					<key>match</key>
+					<string>^.*$</string>
+					<key>name</key>
+					<string>invalid.illegal.embedded.frontmatter.sanesnippet</string>
+				</dict>
 			</array>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>\G(?=.)</string>
+			<key>end</key>
+			<string>(?>=.)\z</string>
+			<key>name</key>
+			<string>invalid.illegal.sanesnippet</string>
 		</dict>
 	</array>
 	<key>repository</key>

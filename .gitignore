@@ -1,1 +1,6 @@
+*.cache
+*.pyc
+*.sublime-project
+*.sublime-workspace
 *.sane.sublime-snippet
+Test/
