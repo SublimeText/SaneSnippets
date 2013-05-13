@@ -3,7 +3,10 @@ import sublime_plugin
 import os
 import re
 import xml.etree.ElementTree as etree
-import StringIO
+try:
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 EXT_SANESNIPPET  = ".sane-snippet"
 EXT_SNIPPET_SANE = ".sane.sublime-snippet"
@@ -107,7 +110,7 @@ def regenerate_snippet(path, onload=False):
     try:
         f = open(path, 'r')
     except:
-        print "SaneSnippet: Unable to read `%s`" % path
+        print("SaneSnippet: Unable to read `%s`" % path)
         return None
     else:
         read = f.read()
@@ -120,20 +123,20 @@ def regenerate_snippet(path, onload=False):
         msg += " in file `%s`" % path
         if onload:
             # Sublime Text likes "hanging" itself when an error_message is pushed at initialization
-            print "Error: " + msg
+            print("Error: " + msg)
         else:
             sublime.error_message(msg)
         if not isinstance(e, SyntaxError):
-            print e  # print the error only if it's not raised intentionally
+            print(e)  # print the error only if it's not raised intentionally
 
         return None
 
-    sio = StringIO.StringIO()
+    sio = StringIO()
     try:
         # TODO: Prettify the XML structure before writing
         ElementTreeCDATA(snippet_to_xml(snippet), linesep=snippet['linesep']).write(sio)
     except:
-        print "SaneSnippet: Could not write XML data into stream for file `%s`" % path
+        print("SaneSnippet: Could not write XML data into stream for file `%s`" % path)
         return None
     else:
         return sio.getvalue()
@@ -157,7 +160,7 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False)
                     try:
                         os.remove(path)
                     except:
-                        print "SaneSnippet: Unable to delete `%s`, file is probably in use" % path
+                        print("SaneSnippet: Unable to delete `%s`, file is probably in use" % path)
 
                 continue
 
@@ -177,7 +180,7 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False)
                     try:
                         f = open(path, 'r')
                     except:
-                        print "SaneSnippet: Unable to read `%s`" % path
+                        print("SaneSnippet: Unable to read `%s`" % path)
                         continue
                     else:
                         read = f.read()
@@ -191,7 +194,7 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False)
                     try:
                         f = open(path, 'w')
                     except:
-                        print "SaneSnippet: Unable to open `%s`" % path
+                        print("SaneSnippet: Unable to open `%s`" % path)
                         continue
                     else:
                         read = f.write(generated)
