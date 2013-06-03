@@ -33,10 +33,17 @@ class ElementTreeCDATA(etree.ElementTree):
 
         if node.tag == '![CDATA[':
             text = node.text.encode(encoding)
-            # escape ']]>' sequences by wrapping them into two CDATA sections
+
             # http://stackoverflow.com/questions/223652
-            text = text.replace(']]>', ']]]]><![CDATA[>')
-            # Windows seems to replace '\r\n' by '\n' when parsing the regexp (but using only '\n' in the regexp will fail).
+            # ']]>' sequences should be escaped by wrapping them into two CDATA sections
+            # However, this is not supported by ST as of 2220 and 3035. Instead, use a hack with
+            # an undefined variable which ST will replace with ''.
+            # See: https://github.com/SublimeText/UnofficialDocs/pull/29
+            text = text.replace(']]>', ']]$UNDEFIND>')
+            # text = text.replace(']]>', ']]]]><![CDATA[>')
+
+            # Windows seems to replace '\r\n' by '\n' when parsing the regexp (but using only '\n'
+            # in the regexp will fail).
             # Also, Windows replaces any '\n' write-time by '\r\n'. '\r' works as it should.
             f.write("%(ls)s<![CDATA[%(text)s]]>%(ls)s" % dict(text=text, ls=self.linesep))
         else:
