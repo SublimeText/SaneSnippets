@@ -1,0 +1,129 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+name: SaneSnippet
+scopeName: source.sanesnippet
+fileTypes: [sane-snippet]
+uuid: 9208D3C1-F9FF-4083-B8BD-57F1E7EA72AB
+
+patterns:
+- name: source.sanesnippet.frontmatter
+  begin: \G(---)$
+  beginCaptures:
+    '1': {name: support.other.section.embedded.begin.sanesnippet.frontmatter}
+  end: (?>=.)\z
+  patterns:
+  - match: ^(description|tabTrigger|scope)(:)\s*(.*?)\s*$
+    captures:
+      '1': {name: keyword.other.sanesnippet.frontmatter}
+      '2': {name: punctuation.separator.key-value}
+      '3': {name: string.unquoted.sanesnippet.frontmatter}
+
+  - name: source.sanesnippet.content
+    begin: ^(---)$
+    beginCaptures:
+      '1': {name: support.other.section.embedded.end.sanesnippet.frontmatter}
+    end: (?>=.)\z
+    patterns:
+    - include: '#snippet'
+
+  - name: invalid.illegal.embedded.frontmatter.sanesnippet
+    match: ^.*$
+
+- name: invalid.illegal.sanesnippet
+  begin: \G(?=.)
+  end: (?>=.)\z
+
+repository:
+  snippet:
+    patterns:
+    - name: constant.character.escape.snippet.sanesnippet
+      match: \\(\\|\$|`)
+    - name: meta.structure.tabstop.snippet.sanesnippet
+      match: (\$)(\d+)
+      captures:
+        '1': {name: entity.name.function.snippet.sanesnippet}
+        '2': {name: keyword.tabstop.snippet.sanesnippet}
+    - name: meta.structure.variable.snippet.sanesnippet
+      begin: (\$\{)(?:(\d+)|([a-zA-Z_][a-zA-Z0-9_]*))(:)
+      beginCaptures:
+        '1': {name: entity.name.function.snippet.sanesnippet}
+        '2': {name: keyword.tabstop.snippet.sanesnippet}
+        '3': {name: string.env.snippet.sanesnippet}
+        '4': {name: entity.name.function.snippet.sanesnippet}
+      end: \}
+      endCaptures:
+        '0': {name: entity.name.function.snippet.sanesnippet}
+      patterns:
+      - include: '#snippet'
+    - name: meta.structure.tabstop.snippet.sanesnippet
+      contentName: string.regexp
+      begin: (\$\{)(\d+)(/)
+      beginCaptures:
+        '1': {name: entity.name.function.snippet.sanesnippet}
+        '2': {name: keyword.tabstop.snippet.sanesnippet}
+        '3': {name: entity.name.function.snippet.sanesnippet}
+      end: \}
+      endCaptures:
+        '0': {name: entity.name.function.snippet.sanesnippet}
+      patterns:
+      - include: '#escaped_char'
+      - include: '#substitution'
+    - name: meta.structure.variable.snippet.sanesnippet
+      match: (\$)([a-zA-Z_][a-zA-Z0-9_]*)
+      captures:
+        '1': {name: entity.name.function.snippet.sanesnippet}
+        '2': {name: string.env.snippet.sanesnippet}
+    - name: meta.structure.substitution.snippet.sanesnippet
+      contentName: string.regexp
+      begin: (\$\{)([a-zA-Z_][a-zA-Z0-9_]*)(/)
+      beginCaptures:
+        '1': {name: entity.name.function.snippet.sanesnippet}
+        '2': {name: string.env.snippet.sanesnippet}
+        '3': {name: entity.name.function.snippet.sanesnippet}
+      end: \}
+      endCaptures:
+        '0': {name: entity.name.function.snippet.sanesnippet}
+      patterns:
+      - include: '#escaped_char'
+      - include: '#substitution'
+    - name: string.interpolated.shell.snippet.sanesnippet
+      begin: '`'
+      end: '`'
+
+  condition:
+    name: meta.structure.condition.regexp
+    begin: '\(\?\d:'
+    beginCaptures:
+      '0': {name: string.regexp.condition}
+    end: \)
+    endCaptures:
+      '0': {name: string.regexp.condition}
+    patterns:
+    - include: '#replacements'
+    - name: meta.structure.condition.regexp
+      begin: ':'
+      beginCaptures:
+        '0': {name: string.regexp.condition}
+      end: (?=\))
+      patterns:
+      - include: '#replacements'
+
+  escaped_char:
+    name: constant.character.escape.regex
+    match: \\[/\\]
+
+  replacements:
+    name: string.regexp.replacement
+    match: \$\d|\\[uUILE]
+
+  substitution:
+    contentName: text.substitution
+    begin: /
+    beginCaptures:
+      '0': {name: entity.name.function.snippet.sanesnippet}
+    end: /[mg]?
+    endCaptures:
+      '0': {name: entity.name.function.snippet.sanesnippet}
+    patterns:
+    - include: '#escaped_char'
+    - include: '#replacements'
+    - include: '#condition'
