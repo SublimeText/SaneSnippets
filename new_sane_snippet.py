@@ -10,7 +10,7 @@ scope:       ${3:%s}
 %s"""
 
 # Should be "SaneSnippets", but do not rely on it
-PACKAGE_NAME = os.path.relpath(os.getcwd(), sublime.packages_path())
+PACKAGE_NAME = os.path.basename(os.getcwd())
 SYNTAX_FILE  = 'Packages/%s/SaneSnippet.tmLanguage' % PACKAGE_NAME
 
 
