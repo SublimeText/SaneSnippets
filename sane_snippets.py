@@ -172,20 +172,21 @@ def regenerate_snippet(path, onload=False):
     # Leading and trailing newlines are ignored when inserting in ST, so we prettify here
     snippet['content'] = "{1}{0}{1}".format(snippet['content'].strip("\r\n"), snippet['linesep'])
 
+    sio = StringIO()
     try:
         et = ElementTreeCDATA(snippet_to_xml(snippet), linesep=snippet['linesep'])
         # TODO: Prettify the XML
-
-        with StringIO() as sio:
-            if ST2:
-                et.write(sio)
-            else:
-                et.write(sio, encoding='unicode')
-
-            return sio.getvalue()
+        if ST2:
+            et.write(sio)
+        else:
+            et.write(sio, encoding='unicode')
     except:
         print("SaneSnippet: Could not write XML data into stream for file `%s`" % path)
         raise
+    else:
+        return sio.getvalue()
+    finally:
+        sio.close()
 
 
 def regenerate_snippets(root=None, onload=False, force=False):
