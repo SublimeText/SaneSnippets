@@ -55,11 +55,7 @@ def _process_cdata(cdata, linesep='\n'):
     cdata = cdata.replace(']]>', ']]$UNDEFINED>')
     # cdata = cdata.replace(']]>', ']]]]><![CDATA[>')
 
-    # Windows seems to replace '\r\n' by '\n' when parsing the regexp (but using only '\n'
-    # in the regexp will fail).
-    # Also, Windows replaces any '\n' write-time by '\r\n'. '\r' works as it should.
-    # TODO: Remove this, it's probably unnecessary
-    return "%(ls)s<![CDATA[%(cdata)s]]>%(ls)s" % dict(cdata=cdata, ls=linesep)
+    return "<![CDATA[%s]]>" % cdata
 
 patched = 'sane_monkeypatched'
 
@@ -173,6 +169,9 @@ def regenerate_snippet(path, onload=False):
             print(e)  # print the error only if it's not raised intentionally
 
         return None
+
+    # Leading and trailing newlines are ignored when inserting in ST, so we prettify here
+    snippet['content'] = "{1}{0}{1}".format(snippet['content'].strip("\r\n"), snippet['linesep'])
 
     sio = StringIO()
     try:
