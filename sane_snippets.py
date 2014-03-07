@@ -61,7 +61,9 @@ def _process_cdata(cdata, linesep='\n'):
     # TODO: Remove this, it's probably unnecessary
     return "%(ls)s<![CDATA[%(cdata)s]]>%(ls)s" % dict(cdata=cdata, ls=linesep)
 
-if hasattr(etree, '_serialize_xml'):
+patched = 'sane_monkeypatched'
+
+if hasattr(etree, '_serialize_xml') and not hasattr(etree._serialize_xml, patched):
     etree._original_serialize_xml = etree._serialize_xml
 
     def _serialize_xml(write, elem, qnames, namespaces):
@@ -71,6 +73,8 @@ if hasattr(etree, '_serialize_xml'):
             write(_process_cdata(elem.text))
         else:
             etree._original_serialize_xml(write, elem, qnames, namespaces)
+
+    setattr(_serialize_xml, patched, True)
 
     etree._serialize_xml = _serialize_xml
 
@@ -188,9 +192,12 @@ def regenerate_snippet(path, onload=False):
         sio.close()
 
 
-def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False):
+def regenerate_snippets(root=None, onload=False, force=False):
     """Check the `root` dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
     Also delete parsed snippets that have no raw equivalent"""
+
+    if not root:
+        root = sublime.packages_path()
 
     for root, dirs, files in os.walk(root):
         for basename in files:
