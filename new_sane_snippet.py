@@ -24,10 +24,14 @@ class NewSaneSnippetCommand(sublime_plugin.TextCommand):
 
     def new_sane_snippet(self, window, content=None, scope=None):
         v = window.new_file()
-        v.settings().set('default_dir', os.path.join(sublime.packages_path(), 'User'))
         v.set_syntax_file(SYNTAX_FILE)
-        v.run_command('insert_snippet', { 'contents': snippet_template % (scope or 'text.plain', content or '$0') })
+        v.run_command('insert_snippet', {'contents': snippet_template % (scope or 'text.plain', content or '$0')})
         v.set_scratch(True)
+
+        # Default settings
+        s = v.settings()
+        s.set('default_dir', os.path.join(sublime.packages_path(), 'User'))
+        s.set('translate_tabs_to_spaces', False)  # Use tabs because they are translated if necessary
 
     def run(self, edit):
         v = self.view
