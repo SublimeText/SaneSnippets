@@ -55,13 +55,11 @@ def _process_cdata(cdata, linesep='\n'):
     cdata = cdata.replace(']]>', ']]$UNDEFINED>')
     # cdata = cdata.replace(']]>', ']]]]><![CDATA[>')
 
-    # Windows seems to replace '\r\n' by '\n' when parsing the regexp (but using only '\n'
-    # in the regexp will fail).
-    # Also, Windows replaces any '\n' write-time by '\r\n'. '\r' works as it should.
-    # TODO: Remove this, it's probably unnecessary
-    return "%(ls)s<![CDATA[%(cdata)s]]>%(ls)s" % dict(cdata=cdata, ls=linesep)
+    return "<![CDATA[%s]]>" % cdata
 
-if hasattr(etree, '_serialize_xml'):
+patched = 'sane_monkeypatched'
+
+if hasattr(etree, '_serialize_xml') and not hasattr(etree._serialize_xml, patched):
     etree._original_serialize_xml = etree._serialize_xml
 
     def _serialize_xml(write, elem, qnames, namespaces):
@@ -71,6 +69,8 @@ if hasattr(etree, '_serialize_xml'):
             write(_process_cdata(elem.text))
         else:
             etree._original_serialize_xml(write, elem, qnames, namespaces)
+
+    setattr(_serialize_xml, patched, True)
 
     etree._serialize_xml = _serialize_xml
 
@@ -99,14 +99,14 @@ def snippet_to_xml(snippet):
 
 
 ################################################################################
-# The actual useful functions
-
+# The actual functions that do stuff
 
 def parse_snippet(path, name, text):
     """Parse a .sane-snippet and return an dict with the snippet's data
     May raise SyntaxError (intended) or other unintended exceptions.
     @return dict() with snippet's data"""
 
+    # Defaults
     snippet = {
         'path':        path,
         'name':        name,
@@ -127,6 +127,7 @@ def parse_snippet(path, name, text):
     snippet['content'] = m['content']
     snippet['linesep'] = m['linesep']
 
+    # Parse frontmatter
     for line in m['header'].splitlines():
         match = line_template.match(line)
         if match is None:
@@ -147,13 +148,11 @@ def regenerate_snippet(path, onload=False):
 
     (name, ext) = os.path.splitext(os.path.basename(path))
     try:
-        f = open(path, 'r')
+        with open(path, 'r') as f:
+            read = f.read()
     except:
         print("SaneSnippet: Unable to read `%s`" % path)
         return None
-    else:
-        read = f.read()
-        f.close()
 
     try:
         snippet = parse_snippet(path, name, read)
@@ -170,10 +169,13 @@ def regenerate_snippet(path, onload=False):
 
         return None
 
+    # Leading and trailing newlines are ignored when inserting in ST, so we prettify here
+    snippet['content'] = "{1}{0}{1}".format(snippet['content'].strip("\r\n"), snippet['linesep'])
+
     sio = StringIO()
     try:
-        # TODO: Prettify the XML structure before writing
         et = ElementTreeCDATA(snippet_to_xml(snippet), linesep=snippet['linesep'])
+        # TODO: Prettify the XML
         if ST2:
             et.write(sio)
         else:
@@ -181,16 +183,18 @@ def regenerate_snippet(path, onload=False):
     except:
         print("SaneSnippet: Could not write XML data into stream for file `%s`" % path)
         raise
-        return None
     else:
         return sio.getvalue()
     finally:
         sio.close()
 
 
-def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False):
+def regenerate_snippets(root=None, onload=False, force=False):
     """Check the `root` dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
     Also delete parsed snippets that have no raw equivalent"""
+
+    if not root:
+        root = sublime.packages_path()
 
     for root, dirs, files in os.walk(root):
         for basename in files:
@@ -217,32 +221,26 @@ def regenerate_snippets(root=sublime.packages_path(), onload=False, force=False)
                     continue  # errors already printed
 
                 # Check if snippet should be written
-                write = False
-                if force or not os.path.exists(path):
-                    write = True
-                else:
+                write = force or not os.path.exists(path)
+                if not write:
                     try:
-                        f = open(path, 'r')
+                        with open(path, 'r') as f:
+                            read = f.read()
                     except:
                         print("SaneSnippet: Unable to read `%s`" % path)
                         continue
-                    else:
-                        read = f.read()
-                        f.close()
 
+                    # TODO: Alternatively check last modified date, should be faster
                     if read != generated:
                         write = True
 
                 # Write the file
                 if write:
                     try:
-                        f = open(path, 'w')
+                        with open(path, 'w') as f:
+                            f.write(generated)
                     except:
                         print("SaneSnippet: Unable to open `%s`" % path)
-                        continue
-                    else:
-                        read = f.write(generated)
-                        f.close()
 
 
 def swap_extension(path):
@@ -257,7 +255,6 @@ def swap_extension(path):
 ################################################################################
 # ST interface (event listeners, commands)
 
-
 class SaneSnippet(sublime_plugin.EventListener):
     """Rechecks the view's directory for .sane-snippets and regenerates them,
     if the saved file is a .sane-snippet
@@ -267,7 +264,7 @@ class SaneSnippet(sublime_plugin.EventListener):
 
     def on_post_save(self, view):
         fn = view.file_name()
-        if (fn.endswith('.sane-snippet')):
+        if fn.endswith('.sane-snippet'):
             regenerate_snippets(os.path.dirname(fn))
 
 
