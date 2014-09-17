@@ -38,9 +38,10 @@ repository:
       match: \\[\\${}]
 
     - name: storage.type.tabstop.snippet.sanesnippet
-      match: (\$)(\d+)
+      match: (\$)(?:(\d+)|\{(\d+)\})
       captures:
         '2': {name: constant.numeric.tabstop.snippet.sanesnippet}
+        '3': {name: constant.numeric.tabstop.snippet.sanesnippet}
 
     - name: storage.type.shell-variable.snippet.sanesnippet
       match: (\$)([a-zA-Z_][a-zA-Z0-9_]*)
@@ -80,6 +81,8 @@ repository:
 
   condition:
     name: meta.structure.condition.regexp
+    # The colon after number references seems to be optional as it doesn't render.
+    # It does for named references though.
     begin: '\(\?(?:(\d):?|\{(\w+)\})'
     beginCaptures:
       '0': {name: keyword.control.regexp.condition.begin}
@@ -104,6 +107,7 @@ repository:
     match: \\.
 
   replacements:
+    # http://www.boost.org/doc/libs/1_56_0/libs/regex/doc/html/boost_regex/format/boost_format_syntax.html
     patterns:
     - name: constant.character.escape.replace.regex
       match: \$\$

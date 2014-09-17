@@ -206,9 +206,14 @@
 							<key>name</key>
 							<string>constant.numeric.tabstop.snippet.sanesnippet</string>
 						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>constant.numeric.tabstop.snippet.sanesnippet</string>
+						</dict>
 					</dict>
 					<key>match</key>
-					<string>(\$)(\d+)</string>
+					<string>(\$)(?:(\d+)|\{(\d+)\})</string>
 					<key>name</key>
 					<string>storage.type.tabstop.snippet.sanesnippet</string>
 				</dict>
