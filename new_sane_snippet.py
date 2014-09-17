@@ -10,7 +10,7 @@ scope:       ${3:%s}
 %s"""
 
 # Should be "SaneSnippets", but do not rely on it
-PACKAGE_NAME = os.path.basename(os.getcwd())
+_, PACKAGE_NAME = os.path.split(os.path.dirname(os.path.abspath(__file__)))
 SYNTAX_FILE  = 'Packages/%s/SaneSnippet.tmLanguage' % PACKAGE_NAME
 
 
