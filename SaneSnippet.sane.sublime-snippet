@@ -1,0 +1,8 @@
+<snippet><description>SaneSnippet</description><tabTrigger>ssnip</tabTrigger><scope>source.sanesnippet</scope><content><![CDATA[
+---
+description: ${1:Lorizzle}
+tabTrigger:  ${2:lorizzle}
+scope:       ${3:text.plain}
+---
+$0
+]]></content></snippet>
