@@ -87,13 +87,18 @@
 		<key>condition</key>
 		<dict>
 			<key>begin</key>
-			<string>\(\?(\d):</string>
+			<string>\(\?(?:(\d):?|\{(\w+)\})</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>keyword.control.regexp.condition.begin.sanesnippet</string>
+					<string>keyword.control.regexp.condition.begin</string>
+				</dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.matchref</string>
 				</dict>
 			</dict>
 			<key>end</key>
@@ -103,7 +108,7 @@
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>keyword.control.regexp.condition.end.sanesnippet</string>
+					<string>keyword.control.regexp.condition.end</string>
 				</dict>
 			</dict>
 			<key>name</key>
@@ -126,7 +131,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.control.regexp.condition.mid.sanesnippet</string>
+							<string>keyword.control.regexp.condition.mid</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -156,10 +161,32 @@
 		</dict>
 		<key>replacements</key>
 		<dict>
-			<key>match</key>
-			<string>\$\d|\\[uUlLE\d]</string>
-			<key>name</key>
-			<string>keyword.other.replacement.snippet.sanesnippet</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>\$\$</string>
+					<key>name</key>
+					<string>constant.character.escape.replace.regex</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>(?x)
+(?:
+ \\[uUlLE]
+|[$\\]\d
+|\$\{\d+\}
+|\$\+\{\w+\}
+|(?:\$ (?:PRE|POST|LAST_PAREN_|)MATCH
+   |\$ \{\^(?:PRE|POST|LAST_PAREN_|)MATCH\}
+   |\$[&amp;`'+] (?# These are shorthands for the above))
+|\$(?:LAST_SUBMATCH_RESULT|\^N)
+)
+</string>
+					<key>name</key>
+					<string>keyword.other.replacement.snippet.sanesnippet</string>
+				</dict>
+			</array>
 		</dict>
 		<key>snippet</key>
 		<dict>

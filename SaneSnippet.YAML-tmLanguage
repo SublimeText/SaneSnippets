@@ -80,19 +80,20 @@ repository:
 
   condition:
     name: meta.structure.condition.regexp
-    begin: '\(\?(\d):'
+    begin: '\(\?(?:(\d):?|\{(\w+)\})'
     beginCaptures:
-      '0': {name: keyword.control.regexp.condition.begin.sanesnippet}
+      '0': {name: keyword.control.regexp.condition.begin}
+      '1': {name: constant.numeric.matchref}
     end: \)
     endCaptures:
-      '0': {name: keyword.control.regexp.condition.end.sanesnippet}
+      '0': {name: keyword.control.regexp.condition.end}
     patterns:
     - include: '#replacements'
     - include: '#regex_escaped_char'
     - name: meta.structure.condition.regexp
       begin: ':'
       beginCaptures:
-        '0': {name: keyword.control.regexp.condition.mid.sanesnippet}
+        '0': {name: keyword.control.regexp.condition.mid}
       end: (?=\))
       patterns:
       - include: '#replacements'
@@ -103,8 +104,22 @@ repository:
     match: \\.
 
   replacements:
-    name: keyword.other.replacement.snippet.sanesnippet
-    match: \$\d|\\[uUlLE\d]
+    patterns:
+    - name: constant.character.escape.replace.regex
+      match: \$\$
+    - name: keyword.other.replacement.snippet.sanesnippet
+      match: |
+        (?x)
+        (?:
+         \\[uUlLE]
+        |[$\\]\d
+        |\$\{\d+\}
+        |\$\+\{\w+\}
+        |(?:\$ (?:PRE|POST|LAST_PAREN_|)MATCH
+           |\$ \{\^(?:PRE|POST|LAST_PAREN_|)MATCH\}
+           |\$[&`'+] (?# These are shorthands for the above))
+        |\$(?:LAST_SUBMATCH_RESULT|\^N)
+        )
 
   substitution:
     contentName: text.substitution
