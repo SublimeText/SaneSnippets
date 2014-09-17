@@ -9,6 +9,7 @@ except ImportError:
     from io import StringIO
 
 ST2 = int(sublime.version()) < 3000
+set_timeout = sublime.set_timeout if ST2 else sublime.set_timeout_async
 
 EXT_SANESNIPPET  = ".sane-snippet"
 EXT_SNIPPET_SANE = ".sane.sublime-snippet"
@@ -280,8 +281,18 @@ class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
 # Init
 
 def plugin_loaded():
-    # Go go gadget snippets! (run async?)
-    regenerate_snippets(onload=True)
+    # Go go gadget snippets!
+    set_timeout(regenerate_snippets(onload=True), 0)
+
+
+def plugin_unloaded():
+    if hasattr(etree, '_original_serialize_xml'):
+        etree._serialize_xml = etree._original_serialize_xml
+        del etree._original_serialize_xml
+
 
 if ST2:
     plugin_loaded()
+
+# ST2 backwards (and don't call it twice in ST3)
+unload_handler = plugin_unloaded if ST2 else lambda: None
