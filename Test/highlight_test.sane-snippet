@@ -1,7 +1,8 @@
 ---
 description: Test
 tabTrigger:  t
-scope:       text.plain
+
+# scope:       text.plain
 ---
 {{ Form::label('$1', '${1/^(?<begin>\w)|(?:_(?<mid>\w))/(?{begin}\u$+{begin}:)(?{mid} \u$+{mid}:)/g}') }}
 
