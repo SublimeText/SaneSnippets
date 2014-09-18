@@ -43,6 +43,12 @@
 					<string>^(description|tabTrigger|scope)(:)\s*(.*?)\s*$</string>
 				</dict>
 				<dict>
+					<key>match</key>
+					<string>^#.*</string>
+					<key>name</key>
+					<string>comment.line.number-sign.frontmatter.sanesnippet</string>
+				</dict>
+				<dict>
 					<key>begin</key>
 					<string>^---$</string>
 					<key>beginCaptures</key>

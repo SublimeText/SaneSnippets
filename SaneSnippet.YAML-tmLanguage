@@ -16,6 +16,9 @@ patterns:
       '2': {name: punctuation.separator.key-value}
       # '3': {name: string.unquoted.sanesnippet.frontmatter}
 
+  - name: comment.line.number-sign.frontmatter.sanesnippet
+    match: ^#.*
+
   - name: meta.content.sanesnippet
     begin: ^---$
     beginCaptures:

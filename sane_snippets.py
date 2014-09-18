@@ -23,7 +23,7 @@ template = re.compile(
     '''
     % dict(nl=r'(?:\r\n?|\n)', nnl=r'(?P<linesep>\r\n?|\n)'),
     re.S | re.X)
-line_template = re.compile(r'^(?P<key>.*?):\s*(?P<val>.*)$')
+line_template = re.compile(r'^(?P<comment>#.*?)$|^(?P<key>\w+):\s*(?P<val>.*)$|^(?P<empty>\s*)$')
 
 
 ################################################################################
@@ -129,6 +129,11 @@ def parse_snippet(path, name, text):
         if match is None:
             raise SyntaxError("Unable to parse SaneSnippet header")
         m = match.groupdict()
+
+        if not m['key']:
+            # commented or empty line
+            continue
+
         m['key'] = m['key'].strip()
         if m['key'] in ('description', 'tabTrigger', 'scope'):
             snippet[m['key']] = parse_val(m['val'])
