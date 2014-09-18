@@ -27,7 +27,6 @@ class NewSaneSnippetCommand(sublime_plugin.TextCommand):
         v.set_syntax_file(SYNTAX_FILE)
         content = content.replace("$", "\$") if content else '$0'
         v.run_command('insert_snippet', {'contents': snippet_template % (scope or 'text.plain', content)})
-        v.set_scratch(True)
 
         # Default settings
         s = v.settings()
