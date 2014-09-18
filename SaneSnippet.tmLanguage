@@ -38,6 +38,11 @@
 							<key>name</key>
 							<string>punctuation.separator.key-value</string>
 						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>string.unquoted.sanesnippet.frontmatter</string>
+						</dict>
 					</dict>
 					<key>match</key>
 					<string>^(description|tabTrigger|scope)(:)\s*(.*?)\s*$</string>

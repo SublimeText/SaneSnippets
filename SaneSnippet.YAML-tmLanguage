@@ -14,7 +14,7 @@ patterns:
     captures:
       '1': {name: support.function.sanesnippet.frontmatter}
       '2': {name: punctuation.separator.key-value}
-      # '3': {name: string.unquoted.sanesnippet.frontmatter}
+      '3': {name: string.unquoted.sanesnippet.frontmatter}
 
   - name: comment.line.number-sign.frontmatter.sanesnippet
     match: ^#.*
