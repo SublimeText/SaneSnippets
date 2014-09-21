@@ -1,0 +1,21 @@
+---
+# This file has an incorrect extension so it won't get compiled automatically.
+# Set the syntax manually to see the highlighting in action.
+description: Test
+tabTrigger:  t
+
+scope:       text.plain
+---
+{{ Form::label('$1', '${1/^(?<begin>\w)|(?:_(?<mid>\w))/(?{begin}\u$+{begin}:)(?{mid} \u$+{mid}:)/g}') }}
+
+{{ Form::label('$2', '${2/^(\w)|(?:_(\w))/(?1\u$1:)(?2 \u$2:)/g}') }}
+
+
+${11}
+${3:default_later_in_text}
+${3:another_one}
+${3/./$& $MATCH ${^LAST_PAREN_MATCH} $1 \L\1\E $$ ${12}/g}
+
+${8:some default value here ${9:something { \{something} \}} }
+${SOME_VAR/yes/no/g}
+\s \. $0\\

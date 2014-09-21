@@ -12,19 +12,17 @@
 	<array>
 		<dict>
 			<key>begin</key>
-			<string>\G(---)$</string>
+			<string>\G---$</string>
 			<key>beginCaptures</key>
 			<dict>
-				<key>1</key>
+				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>support.other.section.embedded.begin.sanesnippet.frontmatter</string>
+					<string>keyword.control.frontmatter.begin.sanesnippet</string>
 				</dict>
 			</dict>
 			<key>end</key>
 			<string>(?&gt;=.)\z</string>
-			<key>name</key>
-			<string>source.sanesnippet.frontmatter</string>
 			<key>patterns</key>
 			<array>
 				<dict>
@@ -33,7 +31,7 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.other.sanesnippet.frontmatter</string>
+							<string>support.function.sanesnippet.frontmatter</string>
 						</dict>
 						<key>2</key>
 						<dict>
@@ -50,20 +48,26 @@
 					<string>^(description|tabTrigger|scope)(:)\s*(.*?)\s*$</string>
 				</dict>
 				<dict>
+					<key>match</key>
+					<string>^#.*</string>
+					<key>name</key>
+					<string>comment.line.number-sign.frontmatter.sanesnippet</string>
+				</dict>
+				<dict>
 					<key>begin</key>
-					<string>^(---)$</string>
+					<string>^---$</string>
 					<key>beginCaptures</key>
 					<dict>
-						<key>1</key>
+						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>support.other.section.embedded.end.sanesnippet.frontmatter</string>
+							<string>keyword.control.frontmatter.end.sanesnippet</string>
 						</dict>
 					</dict>
 					<key>end</key>
 					<string>(?&gt;=.)\z</string>
 					<key>name</key>
-					<string>source.sanesnippet.content</string>
+					<string>meta.content.sanesnippet</string>
 					<key>patterns</key>
 					<array>
 						<dict>
@@ -94,13 +98,18 @@
 		<key>condition</key>
 		<dict>
 			<key>begin</key>
-			<string>\(\?\d:</string>
+			<string>\(\?(?:(\d):?|\{(\w+)\})</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>string.regexp.condition</string>
+					<string>keyword.control.regexp.condition.begin</string>
+				</dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>constant.numeric.matchref</string>
 				</dict>
 			</dict>
 			<key>end</key>
@@ -110,7 +119,7 @@
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>string.regexp.condition</string>
+					<string>keyword.control.regexp.condition.end</string>
 				</dict>
 			</dict>
 			<key>name</key>
@@ -122,6 +131,10 @@
 					<string>#replacements</string>
 				</dict>
 				<dict>
+					<key>include</key>
+					<string>#regex_escaped_char</string>
+				</dict>
+				<dict>
 					<key>begin</key>
 					<string>:</string>
 					<key>beginCaptures</key>
@@ -129,7 +142,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>string.regexp.condition</string>
+							<string>keyword.control.regexp.condition.mid</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -142,23 +155,49 @@
 							<key>include</key>
 							<string>#replacements</string>
 						</dict>
+						<dict>
+							<key>include</key>
+							<string>#regex_escaped_char</string>
+						</dict>
 					</array>
 				</dict>
 			</array>
 		</dict>
-		<key>escaped_char</key>
+		<key>regex_escaped_char</key>
 		<dict>
 			<key>match</key>
-			<string>\\[/\\]</string>
+			<string>\\.</string>
 			<key>name</key>
 			<string>constant.character.escape.regex</string>
 		</dict>
 		<key>replacements</key>
 		<dict>
-			<key>match</key>
-			<string>\$\d|\\[uUILE]</string>
-			<key>name</key>
-			<string>string.regexp.replacement</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>\$\$</string>
+					<key>name</key>
+					<string>constant.character.escape.replace.regex</string>
+				</dict>
+				<dict>
+					<key>match</key>
+					<string>(?x)
+(?:
+ \\[uUlLE]
+|[$\\]\d
+|\$\{\d+\}
+|\$\+\{\w+\}
+|(?:\$ (?:PRE|POST|LAST_PAREN_|)MATCH
+   |\$ \{\^(?:PRE|POST|LAST_PAREN_|)MATCH\}
+   |\$[&amp;`'+] (?# These are shorthands for the above))
+|\$(?:LAST_SUBMATCH_RESULT|\^N)
+)
+</string>
+					<key>name</key>
+					<string>keyword.other.replacement.snippet.sanesnippet</string>
+				</dict>
+			</array>
 		</dict>
 		<key>snippet</key>
 		<dict>
@@ -166,28 +205,42 @@
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\\(\\|\$|`)</string>
+					<string>\\[\\${}]</string>
 					<key>name</key>
 					<string>constant.character.escape.snippet.sanesnippet</string>
 				</dict>
 				<dict>
 					<key>captures</key>
 					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
-						</dict>
 						<key>2</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.tabstop.snippet.sanesnippet</string>
+							<string>constant.numeric.tabstop.snippet.sanesnippet</string>
+						</dict>
+						<key>3</key>
+						<dict>
+							<key>name</key>
+							<string>constant.numeric.tabstop.snippet.sanesnippet</string>
 						</dict>
 					</dict>
 					<key>match</key>
-					<string>(\$)(\d+)</string>
+					<string>(\$)(?:(\d+)|\{(\d+)\})</string>
 					<key>name</key>
-					<string>meta.structure.tabstop.snippet.sanesnippet</string>
+					<string>storage.type.tabstop.snippet.sanesnippet</string>
+				</dict>
+				<dict>
+					<key>captures</key>
+					<dict>
+						<key>2</key>
+						<dict>
+							<key>name</key>
+							<string>variable.other.shell-variable.snippet.sanesnippet</string>
+						</dict>
+					</dict>
+					<key>match</key>
+					<string>(\$)([a-zA-Z_][a-zA-Z0-9_]*)</string>
+					<key>name</key>
+					<string>storage.type.shell-variable.snippet.sanesnippet</string>
 				</dict>
 				<dict>
 					<key>begin</key>
@@ -197,22 +250,22 @@
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
+							<string>storage.type.tabstop.default.sanesnippet</string>
 						</dict>
 						<key>2</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.tabstop.snippet.sanesnippet</string>
+							<string>constant.numeric.tabstop.snippet.sanesnippet</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>string.env.snippet.sanesnippet</string>
+							<string>variable.other.shell-variable.snippet.sanesnippet</string>
 						</dict>
 						<key>4</key>
 						<dict>
 							<key>name</key>
-							<string>storage.type.snippet.sanesnippet</string>
+							<string>storage.type.tabstop.default.sanesnippet</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -222,42 +275,51 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
+							<string>storage.type.tabstop.default.sanesnippet</string>
 						</dict>
 					</dict>
 					<key>name</key>
-					<string>meta.structure.variable.snippet.sanesnippet</string>
+					<string>meta.structure.default.snippet.sanesnippet</string>
 					<key>patterns</key>
 					<array>
 						<dict>
 							<key>include</key>
 							<string>#snippet</string>
 						</dict>
+						<dict>
+							<key>match</key>
+							<string>.</string>
+							<key>name</key>
+							<string>string.other.value.snippet.sanesnippet</string>
+						</dict>
 					</array>
 				</dict>
 				<dict>
 					<key>begin</key>
-					<string>(\$\{)(\d+)(/)</string>
+					<string>(\$\{)(?:(\d+)|([a-zA-Z_][a-zA-Z0-9_]*))(/)</string>
 					<key>beginCaptures</key>
 					<dict>
 						<key>1</key>
 						<dict>
 							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
+							<string>storage.type.substitution.sanesnippet</string>
 						</dict>
 						<key>2</key>
 						<dict>
 							<key>name</key>
-							<string>keyword.tabstop.snippet.sanesnippet</string>
+							<string>constant.numeric.tabstop.snippet.sanesnippet</string>
 						</dict>
 						<key>3</key>
 						<dict>
 							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
+							<string>variable.other.shell-variable.snippet.sanesnippet</string>
+						</dict>
+						<key>4</key>
+						<dict>
+							<key>name</key>
+							<string>storage.type.substitution.sanesnippet</string>
 						</dict>
 					</dict>
-					<key>contentName</key>
-					<string>string.regexp</string>
 					<key>end</key>
 					<string>\}</string>
 					<key>endCaptures</key>
@@ -265,73 +327,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
-						</dict>
-					</dict>
-					<key>name</key>
-					<string>meta.structure.tabstop.snippet.sanesnippet</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#escaped_char</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#substitution</string>
-						</dict>
-					</array>
-				</dict>
-				<dict>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>string.env.snippet.sanesnippet</string>
-						</dict>
-					</dict>
-					<key>match</key>
-					<string>(\$)([a-zA-Z_][a-zA-Z0-9_]*)</string>
-					<key>name</key>
-					<string>meta.structure.variable.snippet.sanesnippet</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>(\$\{)([a-zA-Z_][a-zA-Z0-9_]*)(/)</string>
-					<key>beginCaptures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>string.env.snippet.sanesnippet</string>
-						</dict>
-						<key>3</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
-						</dict>
-					</dict>
-					<key>contentName</key>
-					<string>string.regexp</string>
-					<key>end</key>
-					<string>\}</string>
-					<key>endCaptures</key>
-					<dict>
-						<key>0</key>
-						<dict>
-							<key>name</key>
-							<string>entity.name.function.snippet.sanesnippet</string>
+							<string>storage.type.substitution.sanesnippet</string>
 						</dict>
 					</dict>
 					<key>name</key>
@@ -340,21 +336,17 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#escaped_char</string>
+							<string>source.regexp</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#regex_escaped_char</string>
 						</dict>
 						<dict>
 							<key>include</key>
 							<string>#substitution</string>
 						</dict>
 					</array>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>`</string>
-					<key>end</key>
-					<string>`</string>
-					<key>name</key>
-					<string>string.interpolated.shell.snippet.sanesnippet</string>
 				</dict>
 			</array>
 		</dict>
@@ -367,7 +359,7 @@
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.snippet.sanesnippet</string>
+					<string>storage.type.substitution.mid.sanesnippet</string>
 				</dict>
 			</dict>
 			<key>contentName</key>
@@ -379,18 +371,18 @@
 				<key>0</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.snippet.sanesnippet</string>
+					<string>storage.type.substitution.end.sanesnippet</string>
 				</dict>
 			</dict>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>include</key>
-					<string>#escaped_char</string>
+					<string>#replacements</string>
 				</dict>
 				<dict>
 					<key>include</key>
-					<string>#replacements</string>
+					<string>#regex_escaped_char</string>
 				</dict>
 				<dict>
 					<key>include</key>

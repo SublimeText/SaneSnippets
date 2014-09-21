@@ -9,6 +9,7 @@ except ImportError:
     from io import StringIO
 
 ST2 = int(sublime.version()) < 3000
+set_timeout = sublime.set_timeout if ST2 else sublime.set_timeout_async
 
 EXT_SANESNIPPET  = ".sane-snippet"
 EXT_SNIPPET_SANE = ".sane.sublime-snippet"
@@ -22,7 +23,7 @@ template = re.compile(
     '''
     % dict(nl=r'(?:\r\n?|\n)', nnl=r'(?P<linesep>\r\n?|\n)'),
     re.S | re.X)
-line_template = re.compile(r'^(?P<key>.*?):\s*(?P<val>.*)$')
+line_template = re.compile(r'^(?P<comment>#.*?)$|^(?P<key>\w+):\s*(?P<val>.*)$|^(?P<empty>\s*)$')
 
 
 ################################################################################
@@ -32,21 +33,17 @@ class ElementTreeCDATA(etree.ElementTree):
     """Subclass of ElementTree which handles CDATA blocks reasonably"""
     # http://stackoverflow.com/questions/174890
 
-    def __init__(self, elem, linesep='\n', *args, **kwargs):
-        etree.ElementTree.__init__(self, elem, *args, **kwargs)
-        self.linesep = linesep
-
     def _write(self, f, node, encoding, namespaces):
         """This method is for ElementTree <= 1.2.6"""
 
         if node.tag == '![CDATA[':
             text = node.text.encode(encoding)
-            f.write(_process_cdata(text, self.linesep))
+            f.write(_process_cdata(text))
         else:
             etree.ElementTree._write(self, f, node, encoding, namespaces)
 
 
-def _process_cdata(cdata, linesep='\n'):
+def _process_cdata(cdata):
     # http://stackoverflow.com/questions/223652
     # ']]>' sequences should be escaped by wrapping them into two CDATA sections
     # However, this is not supported by ST as of 2220 and 3035. Instead, use a hack with
@@ -117,7 +114,6 @@ def parse_snippet(path, name, text):
     }
 
     def parse_val(text):
-        # TODO: handle quoted strings.
         return text.strip()
 
     match = template.match(text)
@@ -133,6 +129,11 @@ def parse_snippet(path, name, text):
         if match is None:
             raise SyntaxError("Unable to parse SaneSnippet header")
         m = match.groupdict()
+
+        if not m['key']:
+            # commented or empty line
+            continue
+
         m['key'] = m['key'].strip()
         if m['key'] in ('description', 'tabTrigger', 'scope'):
             snippet[m['key']] = parse_val(m['val'])
@@ -174,7 +175,7 @@ def regenerate_snippet(path, onload=False):
 
     sio = StringIO()
     try:
-        et = ElementTreeCDATA(snippet_to_xml(snippet), linesep=snippet['linesep'])
+        et = ElementTreeCDATA(snippet_to_xml(snippet))
         # TODO: Prettify the XML
         if ST2:
             et.write(sio)
@@ -222,6 +223,7 @@ def regenerate_snippets(root=None, onload=False, force=False):
 
                 # Check if snippet should be written
                 write = force or not os.path.exists(path)
+                # TODO: Check last modified date first, should be faster
                 if not write:
                     try:
                         with open(path, 'r') as f:
@@ -230,7 +232,6 @@ def regenerate_snippets(root=None, onload=False, force=False):
                         print("SaneSnippet: Unable to read `%s`" % path)
                         continue
 
-                    # TODO: Alternatively check last modified date, should be faster
                     if read != generated:
                         write = True
 
@@ -280,8 +281,18 @@ class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
 # Init
 
 def plugin_loaded():
-    # Go go gadget snippets! (run async?)
-    regenerate_snippets(onload=True)
+    # Go go gadget snippets!
+    set_timeout(regenerate_snippets(onload=True), 0)
+
+
+def plugin_unloaded():
+    if hasattr(etree, '_original_serialize_xml'):
+        etree._serialize_xml = etree._original_serialize_xml
+        del etree._original_serialize_xml
+
 
 if ST2:
     plugin_loaded()
+
+# ST2 backwards (and don't call it twice in ST3)
+unload_handler = plugin_unloaded if ST2 else lambda: None

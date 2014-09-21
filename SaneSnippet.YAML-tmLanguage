@@ -5,22 +5,24 @@ fileTypes: [sane-snippet]
 uuid: 9208D3C1-F9FF-4083-B8BD-57F1E7EA72AB
 
 patterns:
-- name: source.sanesnippet.frontmatter
-  begin: \G(---)$
+- begin: \G---$
   beginCaptures:
-    '1': {name: support.other.section.embedded.begin.sanesnippet.frontmatter}
+    '0': {name: keyword.control.frontmatter.begin.sanesnippet}
   end: (?>=.)\z
   patterns:
   - match: ^(description|tabTrigger|scope)(:)\s*(.*?)\s*$
     captures:
-      '1': {name: keyword.other.sanesnippet.frontmatter}
+      '1': {name: support.function.sanesnippet.frontmatter}
       '2': {name: punctuation.separator.key-value}
       '3': {name: string.unquoted.sanesnippet.frontmatter}
 
-  - name: source.sanesnippet.content
-    begin: ^(---)$
+  - name: comment.line.number-sign.frontmatter.sanesnippet
+    match: ^#.*
+
+  - name: meta.content.sanesnippet
+    begin: ^---$
     beginCaptures:
-      '1': {name: support.other.section.embedded.end.sanesnippet.frontmatter}
+      '0': {name: keyword.control.frontmatter.end.sanesnippet}
     end: (?>=.)\z
     patterns:
     - include: '#snippet'
@@ -36,99 +38,105 @@ repository:
   snippet:
     patterns:
     - name: constant.character.escape.snippet.sanesnippet
-      match: \\(\\|\$|`)
+      match: \\[\\${}]
 
-    - name: meta.structure.tabstop.snippet.sanesnippet
-      match: (\$)(\d+)
+    - name: storage.type.tabstop.snippet.sanesnippet
+      match: (\$)(?:(\d+)|\{(\d+)\})
       captures:
-        '1': {name: entity.name.function.snippet.sanesnippet}
-        '2': {name: keyword.tabstop.snippet.sanesnippet}
+        '2': {name: constant.numeric.tabstop.snippet.sanesnippet}
+        '3': {name: constant.numeric.tabstop.snippet.sanesnippet}
 
-    - name: meta.structure.variable.snippet.sanesnippet
-      begin: (\$\{)(?:(\d+)|([a-zA-Z_][a-zA-Z0-9_]*))(:)
-      beginCaptures:
-        '1': {name: entity.name.function.snippet.sanesnippet}
-        '2': {name: keyword.tabstop.snippet.sanesnippet}
-        '3': {name: string.env.snippet.sanesnippet}
-        '4': {name: storage.type.snippet.sanesnippet}
-      end: \}
-      endCaptures:
-        '0': {name: entity.name.function.snippet.sanesnippet}
-      patterns:
-      - include: '#snippet'
-
-    - name: meta.structure.tabstop.snippet.sanesnippet
-      contentName: string.regexp
-      begin: (\$\{)(\d+)(/)
-      beginCaptures:
-        '1': {name: entity.name.function.snippet.sanesnippet}
-        '2': {name: keyword.tabstop.snippet.sanesnippet}
-        '3': {name: entity.name.function.snippet.sanesnippet}
-      end: \}
-      endCaptures:
-        '0': {name: entity.name.function.snippet.sanesnippet}
-      patterns:
-      - include: '#escaped_char'
-      - include: '#substitution'
-
-    - name: meta.structure.variable.snippet.sanesnippet
+    - name: storage.type.shell-variable.snippet.sanesnippet
       match: (\$)([a-zA-Z_][a-zA-Z0-9_]*)
       captures:
-        '1': {name: entity.name.function.snippet.sanesnippet}
-        '2': {name: string.env.snippet.sanesnippet}
-    - name: meta.structure.substitution.snippet.sanesnippet
-      contentName: string.regexp
-      begin: (\$\{)([a-zA-Z_][a-zA-Z0-9_]*)(/)
+        '2': {name: variable.other.shell-variable.snippet.sanesnippet}
+
+    - name: meta.structure.default.snippet.sanesnippet
+      begin: (\$\{)(?:(\d+)|([a-zA-Z_][a-zA-Z0-9_]*))(:)
       beginCaptures:
-        '1': {name: entity.name.function.snippet.sanesnippet}
-        '2': {name: string.env.snippet.sanesnippet}
-        '3': {name: entity.name.function.snippet.sanesnippet}
+        '1': {name: storage.type.tabstop.default.sanesnippet}
+        '2': {name: constant.numeric.tabstop.snippet.sanesnippet}
+        '3': {name: variable.other.shell-variable.snippet.sanesnippet}
+        '4': {name: storage.type.tabstop.default.sanesnippet}
       end: \}
       endCaptures:
-        '0': {name: entity.name.function.snippet.sanesnippet}
+        '0': {name: storage.type.tabstop.default.sanesnippet}
       patterns:
-      - include: '#escaped_char'
-      - include: '#substitution'
+      - include: '#snippet'
+      - name: string.other.value.snippet.sanesnippet
+        match: .
 
-    - name: string.interpolated.shell.snippet.sanesnippet
-      begin: '`'
-      end: '`'
+    - name: meta.structure.substitution.snippet.sanesnippet
+      begin: (\$\{)(?:(\d+)|([a-zA-Z_][a-zA-Z0-9_]*))(/)
+      beginCaptures:
+        '1': {name: storage.type.substitution.sanesnippet}
+        '2': {name: constant.numeric.tabstop.snippet.sanesnippet}
+        '3': {name: variable.other.shell-variable.snippet.sanesnippet}
+        '4': {name: storage.type.substitution.sanesnippet}
+      end: \}
+      endCaptures:
+        '0': {name: storage.type.substitution.sanesnippet}
+      patterns:
+      - include: source.regexp
+      - include: '#regex_escaped_char' # for when the above fails to import
+      # Our next syntax construct
+      - include: '#substitution'
 
   condition:
     name: meta.structure.condition.regexp
-    begin: '\(\?\d:'
+    # The colon after number references seems to be optional as it doesn't render.
+    # It does for named references though.
+    begin: '\(\?(?:(\d):?|\{(\w+)\})'
     beginCaptures:
-      '0': {name: string.regexp.condition}
+      '0': {name: keyword.control.regexp.condition.begin}
+      '1': {name: constant.numeric.matchref}
     end: \)
     endCaptures:
-      '0': {name: string.regexp.condition}
+      '0': {name: keyword.control.regexp.condition.end}
     patterns:
     - include: '#replacements'
+    - include: '#regex_escaped_char'
     - name: meta.structure.condition.regexp
       begin: ':'
       beginCaptures:
-        '0': {name: string.regexp.condition}
+        '0': {name: keyword.control.regexp.condition.mid}
       end: (?=\))
       patterns:
       - include: '#replacements'
+      - include: '#regex_escaped_char'
 
-  escaped_char:
+  regex_escaped_char:
     name: constant.character.escape.regex
-    match: \\[/\\]
+    match: \\.
 
   replacements:
-    name: string.regexp.replacement
-    match: \$\d|\\[uUILE]
+    # http://www.boost.org/doc/libs/1_56_0/libs/regex/doc/html/boost_regex/format/boost_format_syntax.html
+    patterns:
+    - name: constant.character.escape.replace.regex
+      match: \$\$
+    - name: keyword.other.replacement.snippet.sanesnippet
+      match: |
+        (?x)
+        (?:
+         \\[uUlLE]
+        |[$\\]\d
+        |\$\{\d+\}
+        |\$\+\{\w+\}
+        |(?:\$ (?:PRE|POST|LAST_PAREN_|)MATCH
+           |\$ \{\^(?:PRE|POST|LAST_PAREN_|)MATCH\}
+           |\$[&`'+] (?# These are shorthands for the above))
+        |\$(?:LAST_SUBMATCH_RESULT|\^N)
+        )
 
   substitution:
     contentName: text.substitution
     begin: /
     beginCaptures:
-      '0': {name: entity.name.function.snippet.sanesnippet}
+      '0': {name: storage.type.substitution.mid.sanesnippet}
     end: /[mg]?
     endCaptures:
-      '0': {name: entity.name.function.snippet.sanesnippet}
+      '0': {name: storage.type.substitution.end.sanesnippet}
     patterns:
-    - include: '#escaped_char'
     - include: '#replacements'
+    - include: '#regex_escaped_char'
     - include: '#condition'
