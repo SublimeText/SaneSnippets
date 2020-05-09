@@ -1,32 +1,39 @@
 [
     {
         "id": "tools",
-        "children":
-        [
+        "children": [
             {
                 "id": "packages",
                 "caption": "Packages",
-                "children":
-                [
+                "mnemonic": "P",
+                "children": [
                     {
-                        "id":      "sane_snippets",
+                        "id": "sane_snippets",
                         "caption": "SaneSnippets",
-                        "children":
-                        [
+                        "children": [
                             {
-                                "id":      "new_sane_snippet",
+                                "id": "new_sane_snippet",
                                 "caption": "New SaneSnippet…",
-                                "command": "new_sane_snippet"
+                                "mnemonic": "N",
+                                "command": "new_sane_snippet",
                             },
                             {
-                                "id":      "regenerate_sane_snippets",
+                                "id": "regenerate_sane_snippets",
                                 "caption": "Regenerate SaneSnippets",
-                                "command": "regenerate_sane_snippets"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+                                "mnemonic": "R",
+                                "command": "regenerate_sane_snippets",
+                            },
+                            {
+                                "id": "regenerate_sane_snippets",
+                                "caption": "Regenerate SaneSnippets (force)",
+                                "mnemonic": "f",
+                                "command": "regenerate_sane_snippets",
+                                "args": {"force": true},
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
 ]

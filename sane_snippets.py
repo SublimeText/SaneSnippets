@@ -219,7 +219,7 @@ class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
 
     If `force = True`, regenerate all the snippets even if they weren't updated.
     """
-    def run(self, force=True):
+    def run(self, force=False):
         regenerate_snippets(force=force)
 
 
