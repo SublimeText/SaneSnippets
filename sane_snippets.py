@@ -140,7 +140,6 @@ class SaneSnippet:
         # Store in instance
         self.data = data
         if f.newlines:  # provided by io.TextIOBase
-            # TODO test this
             if isinstance(f.newlines, str):
                 self.newline = f.newlines
             else:
