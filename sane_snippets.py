@@ -1,9 +1,12 @@
-import os
-import re
 from io import StringIO
+import os
+from pathlib import Path
+import re
 
 import sublime
 import sublime_plugin
+
+from sublime_lib import ResourcePath
 
 
 ################################################################################
@@ -48,24 +51,29 @@ class SaneSnippet:
     newline = "\n"
 
     def __init__(self, path):
+        if path.suffix != self.EXT_SANE:
+            raise ValueError("Unexpected extension", path)
         self.sane_path = path
         self.data = {}
 
     @property
     def sublime_path(self):
-        return self.sane_path.replace(self.EXT_SANE, self.EXT_SUBLIME)
+        return self.sane_path.with_suffix(self.EXT_SUBLIME)
 
     @classmethod
-    def sane_path_for(cls, sublime_path):
-        return sublime_path.replace(cls.EXT_SUBLIME, cls.EXT_SANE)
+    def sane_path_for(cls, path):
+        # cls.EXT_SUBLIME are two suffixes
+        if not path.name.endswith(cls.EXT_SUBLIME):
+            raise ValueError("Unexpected extension", path)
+        return path.with_name(path.name.replace(cls.EXT_SUBLIME, cls.EXT_SANE))
 
     @classmethod
     def is_sane(cls, path):
-        return path.endswith(cls.EXT_SANE)
+        return path.suffix == cls.EXT_SANE
 
     @classmethod
     def is_sublime(cls, path):
-        return path.endswith(cls.EXT_SUBLIME)
+        return path.suffix == cls.EXT_SUBLIME
 
     def write(self):
         """Write the snippet to its sublime_path."""
@@ -73,7 +81,7 @@ class SaneSnippet:
             print("Snippet wasn't loaded; loading now")
             self.read()
 
-        with open(self.sublime_path, 'w', encoding='utf-8', newline=self.newline) as f:
+        with self.sublime_path.open('w', encoding='utf-8', newline=self.newline) as f:
             self.dump(f)
 
     def dump(self, file):
@@ -94,7 +102,7 @@ class SaneSnippet:
 
         Raise ValueError on parse errors and IOError on read errors.
         """
-        with open(self.sane_path, 'r', encoding='utf-8') as f:
+        with self.sane_path.open('r', encoding='utf-8') as f:
             text = f.read()
         lines = iter(text.splitlines())
 
@@ -141,7 +149,7 @@ class SaneSnippet:
     def has_changed(self):
         """Check the source and target files' mtimes."""
         try:
-            return os.path.getmtime(self.sane_path) > os.path.getmtime(self.sublime_path)
+            return self.sane_path.stat().st_mtime > self.sublime_path.stat().st_mtime
         except OSError:
             return True
 
@@ -157,61 +165,65 @@ def error(msg, exc=None, *, dialog=False):
         print(msg)
 
 
-def regenerate_snippets(root=None, onload=False, force=False):
-    """Check the `root` dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
-    Also delete parsed snippets that have no raw equivalent"""
+def regenerate_snippet(path, onload=False, force=False):
+    snippet = SaneSnippet(path)
+    if not (force or snippet.has_changed()):
+        # TODO logging
+        return
 
-    if not root:
-        root = sublime.packages_path()
+    try:
+        snippet.read()
+    except IOError as e:
+        print("Error reading '{}'".format(path), e)
+        return
+    except ValueError as e:
+        error("Error parsing '{}'".format(path), e, dialog=not onload)
+        return
 
-    for root, dirs, files in os.walk(root, followlinks=True):
-        for basename in files:
-            path = os.path.join(root, basename)
+    print("SaneSnippets: Writing", snippet.sublime_path)
+    try:
+        snippet.write()
+    except IOError as e:
+        print("Error writing '{}'".format(snippet.sublime_path), e)
 
-            # Remove parsed snippets that have no raw equivalent
-            if SaneSnippet.is_sublime(basename):
-                if not os.path.exists(SaneSnippet.sane_path_for(path)):
-                    try:
-                        os.remove(path)
-                        print("SaneSnippets: Removed orphaned ", path)
-                    except IOError:
-                        error("Unable to delete '{}', file is probably in use".format(path))
-                continue
 
-            # Create new snippets
-            if SaneSnippet.is_sane(basename):
-                snippet = SaneSnippet(path)
-                if not (force or snippet.has_changed()):
-                    # TODO logging
-                    continue
-                
-                try:
-                    snippet.read()
-                except IOError as e:
-                    print("Error reading '{}'".format(path), e)
-                    continue
-                except ValueError as e:
-                    error("Error parsing '{}'".format(path), e, dialog=not onload)
-                    continue
+def glob_writable_resources(glob):
+    """Find paths to resources that exist on the file system."""
+    for res_path in ResourcePath.glob_resources(glob):
+        path = res_path.file_path()
+        if path.exists():
+            yield path
 
-                print("SaneSnippets: Writing", snippet.sublime_path)
-                try:
-                    snippet.write()
-                except IOError as e:
-                    print("Error writing '{}'".format(snippet.sublime_path), e)
+
+def regenerate_snippets(onload=False, force=False):
+    """Check the packages dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
+    Also delete parsed snippets that have no raw equivalent.
+    """
+    for path in glob_writable_resources("*" + SaneSnippet.EXT_SUBLIME):
+        if not SaneSnippet.sane_path_for(path).exists():
+            try:
+                path.unlink()
+                print("SaneSnippets: Removed orphaned ", path)
+            except IOError:
+                error("Unable to delete '{}', file is probably in use".format(path))
+
+    for path in glob_writable_resources("*" + SaneSnippet.EXT_SANE):
+        regenerate_snippet(path, onload, force)
 
 
 ################################################################################
 # ST interface
 
 class SaneSnippetsListener(sublime_plugin.EventListener):
-    """Recheck the view's directory for .sane-snippets and regenerate them,
-    if the saved file is a .sane-snippet."""
+    """Regenerate the sane snippet of the currently saved source file."""
 
     def on_post_save(self, view):
-        path = view.file_name()
-        if path and SaneSnippet.is_sane(path):
-            regenerate_snippets(os.path.dirname(path))
+        str_path = view.file_name()
+        if not str_path:
+            return
+        path = Path(str_path)
+        if SaneSnippet.is_sane(path):
+            regenerate_snippet(path, force=True)
 
 
 class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
