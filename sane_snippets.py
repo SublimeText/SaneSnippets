@@ -224,5 +224,5 @@ class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
 
 
 def plugin_loaded():
-    # pass
-    sublime.set_timeout_async(regenerate_snippets(onload=True), 0)
+    # TODO add config
+    sublime.set_timeout_async(lambda: regenerate_snippets(onload=True), 0)
