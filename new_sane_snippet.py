@@ -14,7 +14,7 @@ scope:       ${3:%s}
 SYNTAX_FILE  = 'Packages/{}/SaneSnippet.tmLanguage'.format(__package__)
 
 
-class NewSaneSnippetCommand(sublime_plugin.TextCommand):
+class SaneSnippetsNewCommand(sublime_plugin.TextCommand):
     """Creates a new buffer and inserts a scratch snippet for .sane-snippet files
     or uses the current selections for the new snippets' contents"""
 
@@ -42,8 +42,8 @@ class NewSaneSnippetCommand(sublime_plugin.TextCommand):
             self.new_sane_snippet(w)
 
 
-class NewSaneSnippetContextCommand(NewSaneSnippetCommand):
-    """NewSaneSnippetCommand with is_visible()"""
+class SaneSnippetsNewContextCommand(SaneSnippetsNewCommand):
+    """SaneSnippetsNewCommand with is_visible()"""
 
     def is_visible(self):
         return any(self.view.sel())

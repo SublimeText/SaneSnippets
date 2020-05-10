@@ -12,22 +12,22 @@
                         "caption": "SaneSnippets",
                         "children": [
                             {
-                                "id": "new_sane_snippet",
+                                "id": "sane_snippets_new",
                                 "caption": "New SaneSnippet…",
                                 "mnemonic": "N",
-                                "command": "new_sane_snippet",
+                                "command": "sane_snippets_new",
                             },
                             {
-                                "id": "regenerate_sane_snippets",
+                                "id": "sane_snippets_regenerate",
                                 "caption": "Regenerate SaneSnippets",
                                 "mnemonic": "R",
-                                "command": "regenerate_sane_snippets",
+                                "command": "sane_snippets_regenerate",
                             },
                             {
-                                "id": "regenerate_sane_snippets",
+                                "id": "sane_snippets_regenerate",
                                 "caption": "Regenerate SaneSnippets (force)",
                                 "mnemonic": "f",
-                                "command": "regenerate_sane_snippets",
+                                "command": "sane_snippets_regenerate",
                                 "args": {"force": true},
                             },
                         ],

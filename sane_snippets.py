@@ -226,7 +226,7 @@ class SaneSnippetsListener(sublime_plugin.EventListener):
             regenerate_snippet(path, force=True)
 
 
-class RegenerateSaneSnippetsCommand(sublime_plugin.WindowCommand):
+class SaneSnippetsRegenerateCommand(sublime_plugin.WindowCommand):
     """Recheck the packages directory for .sane-snippets and regenerate them.
 
     If `force = True`, regenerate all the snippets even if they weren't updated.
