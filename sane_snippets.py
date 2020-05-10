@@ -197,18 +197,23 @@ def glob_writable_resources(glob):
 
 def regenerate_snippets(onload=False, force=False):
     """Check the packages dir for EXT_SANESNIPPETs and regenerate them; write only if necessary
+
     Also delete parsed snippets that have no raw equivalent.
     """
+    clean_snippets()
+
+    for path in glob_writable_resources("*" + SaneSnippet.EXT_SANE):
+        regenerate_snippet(path, onload, force)
+
+
+def clean_snippets(all_=False):
     for path in glob_writable_resources("*" + SaneSnippet.EXT_SUBLIME):
-        if not SaneSnippet.sane_path_for(path).exists():
+        if all_ or not SaneSnippet.sane_path_for(path).exists():
             try:
                 path.unlink()
                 print("SaneSnippets: Removed orphaned ", path)
             except IOError:
                 error("Unable to delete '{}', file is probably in use".format(path))
-
-    for path in glob_writable_resources("*" + SaneSnippet.EXT_SANE):
-        regenerate_snippet(path, onload, force)
 
 
 ################################################################################
@@ -216,7 +221,6 @@ def regenerate_snippets(onload=False, force=False):
 
 class SaneSnippetsListener(sublime_plugin.EventListener):
     """Regenerate the sane snippet of the currently saved source file."""
-
     def on_post_save(self, view):
         str_path = view.file_name()
         if not str_path:
@@ -226,15 +230,20 @@ class SaneSnippetsListener(sublime_plugin.EventListener):
             regenerate_snippet(path, force=True)
 
 
+class SaneSnippetsRemoveCommand(sublime_plugin.WindowCommand):
+    """Remove compiled sane snippet files."""
+    def run(self):
+        clean_snippets(all_=True)
+
+
 class SaneSnippetsRegenerateCommand(sublime_plugin.WindowCommand):
     """Recheck the packages directory for .sane-snippets and regenerate them.
 
-    If `force = True`, regenerate all the snippets even if they weren't updated.
+    If `force = True`, regenerate all snippets even if they weren't updated.
     """
     def run(self, force=False):
         regenerate_snippets(force=force)
 
 
 def plugin_loaded():
-    # TODO add config
     sublime.set_timeout_async(lambda: regenerate_snippets(onload=True), 0)
