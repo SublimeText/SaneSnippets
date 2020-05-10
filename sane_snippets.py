@@ -130,12 +130,12 @@ class SaneSnippet:
             if line is None:
                 raise ValueError("Header not terminated before EOF")
 
-        sio = StringIO()
-        line = next(lines, None)
-        while line is not None:
-            print(line, file=sio)
+        with StringIO() as sio:
             line = next(lines, None)
-        data['content'] = sio.getvalue().strip("\n")
+            while line is not None:
+                print(line, file=sio)
+                line = next(lines, None)
+            data['content'] = sio.getvalue().strip("\n")
 
         # Store in instance
         self.data = data
