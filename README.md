@@ -65,14 +65,19 @@ Usage
 Create `.sane-snippet` files anywhere in your Sublime Text Packages directory.
 SaneSnippets (`sane.sublime-snippet`) will be regenerated every time you start
 Sublime Text and their contents have changed. When you save a `.sane-snippet`
-file using Sublime Text its containing directory will be rescaned for changed
-SaneSnippets. This allows you to rename your snippets while still detecting and
-deleting the old unused snippet (with no corresponding `.sane-snippet` file).
+file using Sublime Text, it will always be regenerated.
 
 You can manually regenerate all SaneSnippets in the whole packages directory
 with the `SaneSnippets: Regenerate SaneSnippets (force)` command from the command
-palette (`Ctrl+Shift+p`, `Cmd+Shift+p`) or the menu (*Tools > Packages >
+palette (`Ctrl+Shift+p`, `Command+Shift+p`) or the menu (*Tools > Packages >
 SaneSnippets > Regenerate SaneSnippets (force)*).
+This will be useful when renaming or moving SaneSnippets.
+
+You can also remove all generated snippets files
+with the `SaneSnippets: Remove all compiled snippets` command,
+for example when you intend to uninstall the package.
+They will be automatically regenerated
+the next time ST is started.
 
 *Note*: The YAML front matter parsing is using a naïve regular expression
 instead of a proper YAML parser. Please keep it simple.
