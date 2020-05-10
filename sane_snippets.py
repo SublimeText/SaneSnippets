@@ -1,5 +1,5 @@
 from io import StringIO
-import os
+import logging
 from pathlib import Path
 import re
 
@@ -7,6 +7,15 @@ import sublime
 import sublime_plugin
 
 from sublime_lib import ResourcePath
+
+
+# Set up logging for console output
+logger = logging.getLogger(__package__)  # instead of __name__
+formatter = logging.Formatter('[{name}] {levelname}: {message}', style='{')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 
 ################################################################################
@@ -78,7 +87,7 @@ class SaneSnippet:
     def write(self):
         """Write the snippet to its sublime_path."""
         if not self.data:
-            print("Snippet wasn't loaded; loading now")
+            logger.warning("Snippet wasn't loaded; loading now")
             self.read()
 
         with self.sublime_path.open('w', encoding='utf-8', newline=self.newline) as f:
@@ -153,37 +162,29 @@ class SaneSnippet:
             return True
 
 
-def error(msg, exc=None, *, dialog=False):
-    msg = "SaneSnippets: " + msg
-    if exc:
-        msg += "\n  " + repr(exc)
-    
-    if dialog:
-        sublime.error_message(msg)
-    else:
-        print(msg)
-
-
 def regenerate_snippet(path, onload=False, force=False):
     snippet = SaneSnippet(path)
     if not (force or snippet.has_changed()):
-        # TODO logging
+        logger.debug("Skipping '%s'", path)
         return
 
     try:
         snippet.read()
     except IOError as e:
-        print("Error reading '{}'".format(path), e)
+        logger.error("Error reading '%s'", path, exc_info=e)
         return
     except ValueError as e:
-        error("Error parsing '{}'".format(path), e, dialog=not onload)
+        msg = "Error parsing '{}'".format(path)
+        logger.error(msg, exc_info=e)
+        if not onload:
+            sublime.error_message("SaneSnippets: {}\n\n{}".format(msg, e))
         return
 
-    print("SaneSnippets: Writing", snippet.sublime_path)
+    logger.info("Writing %s", snippet.sublime_path)
     try:
         snippet.write()
     except IOError as e:
-        print("Error writing '{}'".format(snippet.sublime_path), e)
+        logger.error("Error writing '%s'", snippet.sublime_path, exc_info=e)
 
 
 def glob_writable_resources(glob):
@@ -210,9 +211,9 @@ def clean_snippets(all_=False):
         if all_ or not SaneSnippet.sane_path_for(path).exists():
             try:
                 path.unlink()
-                print("SaneSnippets: Removed orphaned ", path)
+                logger.info("Removed orphaned snippet '%s'", path)
             except IOError:
-                error("Unable to delete '{}', file is probably in use".format(path))
+                logger.error("Unable to delete '%s', file is probably in use", path)
 
 
 ################################################################################
@@ -246,3 +247,7 @@ class SaneSnippetsRegenerateCommand(sublime_plugin.WindowCommand):
 
 def plugin_loaded():
     sublime.set_timeout_async(lambda: regenerate_snippets(onload=True), 0)
+
+
+def plugin_unloaded():
+    logger.removeHandler(handler)
