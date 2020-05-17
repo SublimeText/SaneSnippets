@@ -31,15 +31,15 @@ Installation
 
 ### Using Sublime Package Control
 
-Pick this option. Install via [Sublime Package Control](https://packagecontrol.io/),
-using the `Package Control: Install Package` menu item. Look for `SaneSnippets`
-in the package list.
+Pick this option. Install via [Package Control](https://packagecontrol.io/),
+using the `Package Control: Install Package` menu item.
+Look for `SaneSnippets` in the package list.
 
 ### Using Git
 
 Clone SaneSnippets into your `Packages` directory:
 
-    # cd to packages dir ...
+    $ cd to packages dir ...
     git clone https://github.com/SublimeText/SaneSnippets.git
 
 ### Download manually
@@ -52,7 +52,7 @@ Clone SaneSnippets into your `Packages` directory:
 
 The `Packages` directory is located at:
 
- * **Linux**:   `~/.Sublime Text 3/Packages/`
+ * **Linux**:   `~/.config/sublime-text-3/Packages/`
  * **OS X**:    `~/Library/Application Support/Sublime Text 3/Packages/`
  * **Windows**: `%APPDATA%/Sublime Text 3/Packages/`
 
