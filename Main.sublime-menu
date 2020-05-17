@@ -1,32 +1,46 @@
 [
     {
         "id": "tools",
-        "children":
-        [
+        "children": [
             {
                 "id": "packages",
                 "caption": "Packages",
-                "children":
-                [
+                "mnemonic": "P",
+                "children": [
                     {
-                        "id":      "sane_snippets",
+                        "id": "sane_snippets",
                         "caption": "SaneSnippets",
-                        "children":
-                        [
+                        "children": [
                             {
-                                "id":      "new_sane_snippet",
+                                "id": "sane_snippets_new",
                                 "caption": "New SaneSnippet…",
-                                "command": "new_sane_snippet"
+                                "mnemonic": "N",
+                                "command": "sane_snippets_new",
                             },
                             {
-                                "id":      "regenerate_sane_snippets",
+                                "id": "sane_snippets_regenerate",
                                 "caption": "Regenerate SaneSnippets",
-                                "command": "regenerate_sane_snippets"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+                                "mnemonic": "R",
+                                "command": "sane_snippets_regenerate",
+                            },
+                            {
+                                "id": "sane_snippets_regenerate_force",
+                                "caption": "Regenerate SaneSnippets (force)",
+                                "mnemonic": "f",
+                                "command": "sane_snippets_regenerate",
+                                "args": {"force": true},
+                            },
+                            {
+                                "id": "sane_snippets_remove",
+                                "caption": "Remove all compiled snippets",
+                                "mnemonic": "a",
+                                "command": "sane_snippets_clean",
+                                "args": {"all_": true},
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
 ]

@@ -1,5 +1,5 @@
-SaneSnippets for Sublime Text 2
-===============================
+SaneSnippets for Sublime Text
+=============================
 
 SaneSnippets consist of text files with little bit of YAML front matter. They're
 optimized for human readability, not XML parsers:
@@ -31,7 +31,7 @@ Installation
 
 ### Using Sublime Package Control
 
-Pick this option. Install via [Sublime Package Control](http://wbond.net/sublime_packages/package_control),
+Pick this option. Install via [Sublime Package Control](https://packagecontrol.io/),
 using the `Package Control: Install Package` menu item. Look for `SaneSnippets`
 in the package list.
 
@@ -40,23 +40,23 @@ in the package list.
 Clone SaneSnippets into your `Packages` directory:
 
     # cd to packages dir ...
-    git clone https://github.com/bobthecow/sublime-sane-snippets.git SaneSnippets
+    git clone https://github.com/SublimeText/SaneSnippets.git
 
 ### Download manually
 
- 1. [Download the latest version](https://github.com/bobthecow/sublime-sane-snippets/zipball/master)
+ 1. [Download the latest version](https://github.com/SublimeText/SaneSnippets/zipball/master)
  2. Unzip and rename the folder to `SaneSnippets`
  3. Move the folder into your `Packages` directory.
 
 ----
 
-The Packages directory is located at:
+The `Packages` directory is located at:
 
- * **Linux**:   `~/.Sublime Text 2/Packages/`
- * **OS X**:    `~/Library/Application Support/Sublime Text 2/Packages/`
- * **Windows**: `%APPDATA%/Sublime Text 2/Packages/`
+ * **Linux**:   `~/.Sublime Text 3/Packages/`
+ * **OS X**:    `~/Library/Application Support/Sublime Text 3/Packages/`
+ * **Windows**: `%APPDATA%/Sublime Text 3/Packages/`
 
-Or type `sublime.packages_path()` into the console (`` Ctrl-` ``).
+You can also find it via *Preferences → Browse Packages*.
 
 
 Usage
@@ -65,19 +65,27 @@ Usage
 Create `.sane-snippet` files anywhere in your Sublime Text Packages directory.
 SaneSnippets (`sane.sublime-snippet`) will be regenerated every time you start
 Sublime Text and their contents have changed. When you save a `.sane-snippet`
-file using Sublime Text its containing directory will be rescaned for changed
-SaneSnippets. This allows you to rename your snippets while still detecting and
-deleting the old unused snippet (with no corresponding `.sane-snippet` file).
+file using Sublime Text, it will always be regenerated.
 
 You can manually regenerate all SaneSnippets in the whole packages directory
-with the `SaneSnippets: Regenerate SaneSnippets` command from the command
-palette (`Ctrl+Shift+p`, `Cmd+Shift+p`) or the menu (*Tools > Packages >
-SaneSnippets > Regenerate SaneSnippets*).
+with the `SaneSnippets: Regenerate SaneSnippets (force)` command from the command
+palette (`Ctrl+Shift+p`, `Command+Shift+p`) or the menu (*Tools > Packages >
+SaneSnippets > Regenerate SaneSnippets (force)*).
+This will be useful when renaming or moving SaneSnippets.
 
+You can also remove all generated snippets files
+with the `SaneSnippets: Remove all compiled snippets` command,
+for example when you intend to uninstall the package.
+They will be automatically regenerated
+the next time ST is started.
+
+*Note*: The YAML front matter parsing is using a naïve regular expression
+instead of a proper YAML parser. Please keep it simple.
 
 Contributors
 ------------
 
+ * [bobthecow](https://github.com/bobthecow/)
  * [FichteFoll](https://github.com/FichteFoll/)
 
 
@@ -85,6 +93,7 @@ License
 -------
 
 Copyright (c) 2011 Justin Hileman
+Copyright (c) 2012-2020 FichteFoll <fichtefoll2@googlemail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

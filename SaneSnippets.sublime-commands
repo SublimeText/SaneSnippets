@@ -1,4 +1,19 @@
 [
-    { "command": "new_sane_snippet",         "caption": "SaneSnippets: New SaneSnippet..." },
-    { "command": "regenerate_sane_snippets", "caption": "SaneSnippets: Regenerate SaneSnippets" }
+    {
+        "caption": "SaneSnippets: New SaneSnippet...",
+        "command": "sane_snippets_new",
+    },
+    {
+        "caption": "SaneSnippets: Regenerate SaneSnippets",
+        "command": "sane_snippets_regenerate",
+    },
+    {
+        "caption": "SaneSnippets: Regenerate SaneSnippets (force)",
+        "command": "sane_snippets_regenerate",
+        "args": {"force": true},
+    },
+    {
+        "caption": "SaneSnippets: Remove all compiled snippets",
+        "command": "sane_snippets_remove",
+    },
 ]
