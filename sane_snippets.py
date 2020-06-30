@@ -60,7 +60,7 @@ class SaneSnippet:
     newline = "\n"
 
     def __init__(self, path):
-        if path.suffix != self.EXT_SANE:
+        if not self.is_sane(path):
             raise ValueError("Unexpected extension", path)
         self.sane_path = path
         self.data = {}
