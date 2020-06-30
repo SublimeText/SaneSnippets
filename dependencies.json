@@ -1,6 +1,7 @@
 {
     "*": {
         ">=3000": [
+            "pathlib",
             "sublime_lib"
         ]
     }
